@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Welcome Greeting - Hotel TV</title>
+<script src="https:
+<link href="https:
+<style>
+body { 
+    margin:0; 
+    overflow:hidden;
+    background: #111; 
+    color:#fff; 
+    font-family:Inter,sans-serif; 
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+}
+.tv-screen-container {
+    width: 100vw;
+    height: calc(100vw * 9 / 16); 
+    max-height: 100vh; 
+    max-width: calc(100vh * 16 / 9); 
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative; 
+    background: radial-gradient(circle at top left, #1a1a1a, #0e0e0e);
+    overflow: hidden;
+}
+.content-wrapper {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 3.5rem; 
+    box-sizing: border-box; 
+}
+.welcome-card {
+    display: flex;
+    flex-direction: row;
+    gap: 2.5rem;
+    background: rgba(30, 30, 30, 0.7); 
+    backdrop-filter: blur(15px); 
+    border-radius: 20px; 
+    padding: 2.5rem; 
+    border: 1px solid rgba(255,255,255,0.1);
+    max-width: 950px; 
+    width: 100%; 
+    box-shadow: 0 15px 40px rgba(0,0,0,0.5);
+}
+.welcome-image {
+    width: 300px;
+    height: 400px;
+    object-fit: cover;
+    border-radius: 16px; 
+    flex-shrink: 0;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+}
+.welcome-text {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+.welcome-text h1 { 
+    font-size: 2.2rem; 
+    font-weight: 700;
+    color: #FBC02D; 
+    margin-bottom: 1.2rem;
+    border-bottom: 2px solid rgba(251, 192, 45, 0.3);
+    padding-bottom: 1rem;
+    text-shadow: 0 2px 5px rgba(0,0,0,0.3);
+}
+.welcome-text p {
+    font-size: 1.1rem; 
+    line-height: 1.7;
+    color: #e5e7eb;
+    max-height: 300px; 
+    overflow-y: auto;
+    padding-right: 15px;
+}
+.welcome-text p::-webkit-scrollbar { width: 6px; }
+.welcome-text p::-webkit-scrollbar-track { background: rgba(255,255,255,0.05); }
+.welcome-text p::-webkit-scrollbar-thumb { background: #FBC02D; border-radius: 3px; }
+.continue-button {
+    position: absolute; 
+    bottom: 2.5rem;  
+    right: 3rem;   
+    padding: 0.6rem 1.2rem; 
+    background-color: rgba(251, 192, 45, 0.9); 
+    color: #111;
+    font-weight: 600;
+    font-size: 0.9rem; 
+    border-radius: 10px; 
+    text-decoration: none;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    border: 1px solid rgba(251, 192, 45, 1);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+    z-index: 200;
+}
+.continue-button:focus {
+    outline: none;
+    background-color: #fff; 
+    color: #111;
+    box-shadow: 0 0 0 4px rgba(251, 192, 45, 0.5); 
+}
+.loading-overlay {
+    position: absolute; 
+    inset: 0;
+    background: #0e0e0e;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 1.5rem;
+    color: #FBC02D;
+    z-index: 100;
+}
+</style>
+</head>
+<body>
+    <div class="tv-screen-container">
+        <div class="loading-overlay" id="loadingOverlay">
+            <p class="animate-pulse">Memuat Sambutan...</p>
+        </div>
+        <div class="content-wrapper" id="content" style="visibility: hidden;">
+            <!-- Konten diisi JS -->
+        </div>
+        <a href="index.php" class="continue-button" id="btnLanjut">
+            Lanjut ke Menu Utama &rarr;
+        </a>
+    </div>
+<script>
+    const contentDiv = document.getElementById('content');
+    const loadingOverlay = document.getElementById('loadingOverlay');
+    const btnLanjut = document.getElementById('btnLanjut');
+    if (typeof window.AndroidBridge === 'undefined') {
+        window.AndroidBridge = { hideLoadingScreen: () => console.log("Simulating hide") };
+    }
+    async function loadGreeting() {
+        try {
+            const res = await fetch('./api.php?action=getCustomGreeting&_=' + Date.now());
+            const data = await res.json();
+            if (data.status !== 'success') {
+                throw new Error(data.message || 'Gagal memuat data sambutan.');
+            }
+            const item = data.data;
+            contentDiv.innerHTML = `
+                <div class="welcome-card">
+                    <img src="${item.image}" alt="${item.title}" class="welcome-image">
+                    <div class="welcome-text">
+                        <h1>${item.title}</h1>
+                        <p>${item.content.replace(/\\n/g, '<br>')}</p>
+                    </div>
+                </div>
+            `;
+            setTimeout(() => {
+                btnLanjut?.focus();
+            }, 100);
+        } catch (e) {
+            console.error("Error loading greeting:", e);
+            contentDiv.innerHTML = `
+                <div class="welcome-card">
+                    <div class="welcome-text" style="text-align: center; width: 100%;">
+                        <h1 class="text-red-400">Gagal Memuat Sambutan</h1>
+                        <p>Terjadi kesalahan saat mengambil data sambutan.</p>
+                        <p class="text-xs text-gray-500 mt-4">Detail: ${e.message}</p>
+                    </div>
+                </div>
+            `;
+            btnLanjut.style.display = 'block'; 
+        } finally {
+            loadingOverlay.style.display = 'none';
+            contentDiv.style.visibility = 'visible';
+            if (window.AndroidBridge && typeof window.AndroidBridge.hideLoadingScreen === 'function') {
+                window.AndroidBridge.hideLoadingScreen();
+            }
+        }
+    }
+    document.addEventListener('DOMContentLoaded', loadGreeting);
+    document.body.addEventListener('keydown', function(e) {
+        if (e.key === 'Backspace' || e.keyCode === 4) {
+             e.preventDefault();
+        }
+        if (e.key === 'Enter' && document.activeElement.id === 'btnLanjut') {
+             window.location.href = 'index.php';
+        }
+    });
+</script>
+</body>
+</html>

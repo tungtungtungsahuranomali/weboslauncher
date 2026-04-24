@@ -1,0 +1,32 @@
+# Dependencies
+/vendor/
+
+# Uploads (dynamic content)
+/uploads/*
+!/uploads/.gitkeep
+
+# APK files
+/APK/*.apk
+
+# Logs
+*.log
+wa_log.txt
+
+# IDE
+/.vscode/
+/nbproject/
+*.sublime-*
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Config with secrets (keep sample)
+/config.php
+
+# Environment
+.env
+.env.local
+
+# Composer lock (optional - remove if needed)
+/composer.lock

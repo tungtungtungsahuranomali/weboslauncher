@@ -1,0 +1,8 @@
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+
+    # Endpoint untuk VHP
+    RewriteRule ^checkin$  api.php?action=vhp_checkin      [QSA,L]
+    RewriteRule ^modify$   api.php?action=vhp_modifyguest  [QSA,L]
+    RewriteRule ^checkout$ api.php?action=vhp_checkout     [QSA,L]
+</IfModule>

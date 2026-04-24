@@ -1,0 +1,564 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Hotel Information</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  html, body { height: 100vh; min-height: 100vh; overflow:hidden; background: url('img/latar.jpg?v=<?php echo time(); ?>') no-repeat center center fixed; background-size: cover; color:#fff; font-family:'Inter',sans-serif; }
+
+  .layout { display:flex; height: 100vh; width: 100vw; overflow:hidden; background: rgba(0, 0, 0, 0.4); }
+
+  /* --- LEFT PANEL: Kategori --- */
+  .cat-panel {
+    width: 250px;
+    min-width: 250px;
+    flex-shrink: 0;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.3);
+    backdrop-filter: blur(15px);
+    display: flex;
+    flex-direction: column;
+    border-right: 1px solid rgba(255,255,255,0.08);
+    overflow-y: auto;
+    scrollbar-width: none;
+    box-shadow: 10px 0 30px rgba(0,0,0,0.3);
+    position: relative;
+    z-index: 50;
+  }
+  .cat-panel::-webkit-scrollbar { display:none; }
+
+  .cat-header {
+    padding: 16px 16px 12px;
+    font-size: 14px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: #64748b;
+    font-weight: 600;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+  }
+
+  .cat-item {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+    padding: 16px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border-left: 4px solid transparent;
+    position: relative;
+    border-bottom: 1px solid rgba(255,255,255,0.03);
+  }
+  .cat-item:hover { background: rgba(255,255,255,0.04); }
+  .cat-item.active {
+    background: rgba(255, 255, 255, 0.05);
+    border-left-color: #facc15;
+  }
+  .cat-item.focused {
+    background: rgba(255, 255, 255, 0.1);
+    border-left-color: #facc15;
+    box-shadow: inset 0 0 20px rgba(250,204,21,0.05);
+  }
+
+  .cat-thumb {
+    width: 100%;
+    height: 140px;
+    border-radius: 8px;
+    object-fit: fill; /* Paksa gambar mengikuti ukuran card */
+    flex-shrink: 0;
+    border: 1px solid rgba(255,255,255,0.1);
+  }
+  .cat-thumb-placeholder {
+    width: 100%;
+    height: 140px;
+    border-radius: 8px;
+    flex-shrink: 0;
+    background: rgba(255, 255, 255, 0.05);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+  }
+
+  .cat-name {
+    font-size: 15px;
+    color: #cbd5e1;
+    line-height: 1.4;
+    font-weight: 500;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    text-align: center;
+  }
+  .cat-item.active .cat-name,
+  .cat-item.focused .cat-name { color: #facc15; font-weight: 600; }
+
+  .cat-count {
+    position: absolute;
+    right: 24px;
+    bottom: 40px; /* Pindah ke bawah */
+    font-size: 11px;
+    background: rgba(0,0,0,0.65);
+    backdrop-filter: blur(4px);
+    color: #fff;
+    padding: 3px 8px;
+    border-radius: 12px;
+    font-weight: 600;
+  }
+
+  /* --- RIGHT PANEL: Slideshow --- */
+  .slide-panel {
+    flex: 1;
+    min-width: 0; /* Hindari overflow flex container */
+    position: relative;
+    overflow: hidden;
+    background: #000;
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+  }
+
+  #slideshow {
+    position: relative;
+    flex: 1;
+    width: 100%;
+    height: 100%;
+    z-index: 10;
+  }
+
+  .slide {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    transition: opacity 0.8s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+  }
+  .slide.active { opacity: 1; z-index: 20; }
+  .slide img {
+    width: 100%;
+    height: 100%;
+    object-fit: fill; /* Gunakan fill agar benar-benar penuh (tidak ada bars) sesuai keinginan 'full' */
+    background: #000;
+  }
+
+  .slide-caption {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: linear-gradient(to top, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.4) 60%, transparent 100%);
+    padding: 60px 40px 30px;
+    z-index: 20;
+  }
+  .slide-caption h2 { font-size: 2rem; color: #facc15; font-weight: 700; margin-bottom: 6px; }
+  .slide-caption p { font-size: 1.1rem; color: #e2e8f0; max-width: 700px; }
+
+  /* --- Slide Indicators --- */
+  .slide-indicators {
+    position: absolute;
+    bottom: 14px;
+    right: 70px; /* Geser agar tidak menumpuk counter */
+    z-index: 30;
+    display: flex;
+    gap: 6px;
+    align-items: center;
+  }
+  .slide-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.3);
+    transition: all 0.3s ease;
+  }
+  .slide-dot.active {
+    background: #facc15;
+    width: 22px;
+    border-radius: 4px;
+  }
+
+  /* --- Slide Counter --- */
+  .slide-counter {
+    position: absolute;
+    bottom: 12px; /* Pindah ke bawah */
+    right: 20px;
+    z-index: 30;
+    background: rgba(0,0,0,0.5);
+    backdrop-filter: blur(4px);
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    color: #e2e8f0;
+  }
+
+  /* Navigation hint */
+  .nav-hint {
+    position: fixed;
+    bottom: 20px;
+    right: 30px;
+    z-index: 60;
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    background: rgba(0,0,0,0.5);
+    padding: 8px 16px;
+    border-radius: 30px;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255,255,255,0.15);
+  }
+  .nav-key {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255, 255, 255, 0.1);
+    color: #fff;
+    border-radius: 6px;
+    padding: 2px 8px;
+    font-size: 11px;
+    font-weight: 700;
+    min-width: 24px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+  }
+  .nav-label { font-size: 11px; color: #64748b; margin-right: 10px; }
+
+  /* No data */
+  .no-data {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    color: #64748b;
+    font-size: 1.2rem;
+  }
+  .no-data span { font-size: 3rem; margin-bottom: 12px; }
+
+  /* Focus area indicator */
+  .focus-area-indicator {
+    position: absolute;
+    top: 16px;
+    left: 20px;
+    z-index: 30;
+    font-size: 11px;
+    color: #64748b;
+    background: rgba(0,0,0,0.4);
+    backdrop-filter: blur(4px);
+    padding: 3px 10px;
+    border-radius: 12px;
+  }
+</style>
+</head>
+<body>
+
+<div class="layout">
+  <!-- LEFT: Kategori -->
+  <div class="cat-panel" id="catPanel">
+    <div class="cat-header" id="catTitle">Information Categories</div>
+    <div id="catList"></div>
+  </div>
+
+  <!-- RIGHT: Slideshow -->
+  <div class="slide-panel" id="slidePanel">
+    <div class="focus-area-indicator" id="focusIndicator"></div>
+    <div class="slide-counter" id="slideCounter"></div>
+    <div id="slideshow"></div>
+    <div class="slide-indicators" id="slideIndicators"></div>
+    <div class="nav-hint">
+      <span class="nav-key">▲▼</span><span class="nav-label" id="hintCat">Category</span>
+      <span class="nav-key">◄►</span><span class="nav-label" id="hintSlide">Slide</span>
+      <span class="nav-key">OK</span><span class="nav-label" id="hintPlay">Play/Pause</span>
+    </div>
+  </div>
+</div>
+
+<script>
+const lang = localStorage.getItem('app_lang') || 'id';
+
+// Translations
+if(lang === 'id') {
+    document.getElementById('catTitle').textContent = 'Kategori Informasi';
+    document.getElementById('hintCat').textContent = 'Kategori';
+}
+
+let categories = [];
+let allFacilities = [];
+let currentCatIndex = 0;
+let currentSlideIndex = 0;
+let slides = [];
+let autoTimer = null;
+const AUTO_INTERVAL = 5000;
+let isPaused = false;
+
+async function init() {
+  try {
+    // Load categories
+    const catRes = await fetch(`./api.php?action=getKatInfo&_=${Date.now()}`);
+    const catData = await catRes.json();
+    if (catData.status === 'success') {
+      categories = catData.data;
+    }
+
+    // Load all facilities
+    const facRes = await fetch(`./api.php?action=getInfo&lang=${lang}&_=${Date.now()}`);
+    const facData = await facRes.json();
+    if (facData.status === 'success') {
+      allFacilities = facData.data;
+    }
+
+    if (categories.length === 0 && allFacilities.length === 0) {
+      document.getElementById('slidePanel').innerHTML = '<div class="no-data"><span>📭</span>No Information Data</div>';
+      return;
+    }
+
+    // Handle items without category or empty categories
+    const hasUncategorized = allFacilities.some(f => !f.id_kat_info || f.id_kat_info == 0);
+    if (categories.length === 0 || hasUncategorized) {
+      categories.unshift({
+        id_kat_info: 'all',
+        nm_kat_info: (lang === 'en') ? 'All Information' : 'Semua Informasi',
+        foto_kat_info: ''
+      });
+    }
+
+    buildCategoryList();
+    selectCategory(0);
+
+  } catch(e) {
+    console.error(e);
+    document.getElementById('slidePanel').innerHTML = '<div class="no-data"><span>⚠️</span>Failed to Load Data</div>';
+  }
+}
+
+function buildCategoryList() {
+  const container = document.getElementById('catList');
+  container.innerHTML = '';
+  categories.forEach((cat, i) => {
+    const el = document.createElement('div');
+    el.className = 'cat-item' + (i === 0 ? ' active focused' : '');
+    el.dataset.index = i;
+
+    const thumbHTML = cat.foto_kat_info
+      ? `<img src="${cat.foto_kat_info}" class="cat-thumb" alt="">`
+      : `<div class="cat-thumb-placeholder">ℹ️</div>`;
+
+    // Count facilities for this category
+    const count = (cat.id_kat_info === 'all')
+      ? allFacilities.length
+      : allFacilities.filter(f => f.id_kat_info == cat.id_kat_info).length;
+
+    el.innerHTML = `${thumbHTML}<span class="cat-name">${cat.nm_kat_info}</span><span class="cat-count">${count}</span>`;
+    el.addEventListener('click', () => selectCategory(i));
+    container.appendChild(el);
+  });
+}
+
+function selectCategory(index) {
+  if (!categories[index]) return;
+
+  currentCatIndex = index;
+  currentSlideIndex = 0;
+
+  // Update active class
+  document.querySelectorAll('.cat-item').forEach((el, i) => {
+    el.classList.toggle('active', i === index);
+  });
+
+  // Filter facilities by category
+  const catId = categories[index].id_kat_info;
+  if (catId === 'all') {
+    slides = allFacilities;
+  } else {
+    slides = allFacilities.filter(f => f.id_kat_info == catId);
+  }
+
+  if (slides.length === 0) {
+    document.getElementById('slideshow').innerHTML = '';
+    document.getElementById('slideCounter').textContent = '';
+    document.getElementById('slideIndicators').innerHTML = '';
+    document.getElementById('slidePanel').querySelector('.no-data')?.remove();
+    const noData = document.createElement('div');
+    noData.className = 'no-data';
+    noData.innerHTML = '<span>📭</span>No data in this category';
+    noData.id = 'noDataMsg';
+    document.getElementById('slidePanel').appendChild(noData);
+    stopAuto();
+    return;
+  }
+
+  // Remove no-data message if exists
+  document.getElementById('noDataMsg')?.remove();
+
+  buildSlides();
+  startAuto();
+}
+
+function buildSlides() {
+  const container = document.getElementById('slideshow');
+  container.innerHTML = '';
+
+  slides.forEach((s, i) => {
+    const div = document.createElement('div');
+    div.className = 'slide' + (i === 0 ? ' active' : '');
+
+    let captionHTML = '';
+    if (s.show_description == 1) {
+      captionHTML = `<div class="slide-caption"><h2>${s.title}</h2><p>${s.description || ''}</p></div>`;
+    }
+
+    div.innerHTML = `<img src="${s.icon_path}" alt="">${captionHTML}`;
+    container.appendChild(div);
+  });
+
+  updateCounter();
+  buildDots();
+}
+
+function updateCounter() {
+  const counter = document.getElementById('slideCounter');
+  if (slides.length > 0) {
+    counter.textContent = `${currentSlideIndex + 1} / ${slides.length}`;
+  } else {
+    counter.textContent = '';
+  }
+}
+
+function buildDots() {
+  const container = document.getElementById('slideIndicators');
+  container.innerHTML = '';
+  slides.forEach((_, i) => {
+    const dot = document.createElement('div');
+    dot.className = 'slide-dot' + (i === 0 ? ' active' : '');
+    container.appendChild(dot);
+  });
+}
+
+function goToSlide(index) {
+  if (slides.length === 0) return;
+  const allSlides = document.querySelectorAll('.slide');
+  const allDots = document.querySelectorAll('.slide-dot');
+
+  allSlides[currentSlideIndex]?.classList.remove('active');
+  allDots[currentSlideIndex]?.classList.remove('active');
+
+  currentSlideIndex = ((index % slides.length) + slides.length) % slides.length;
+
+  allSlides[currentSlideIndex]?.classList.add('active');
+  allDots[currentSlideIndex]?.classList.add('active');
+  updateCounter();
+}
+
+function nextSlide() { goToSlide(currentSlideIndex + 1); }
+function prevSlide() { goToSlide(currentSlideIndex - 1); }
+
+function startAuto() {
+  stopAuto();
+  isPaused = false;
+  updateFocusIndicator();
+  if (slides.length > 1) {
+    autoTimer = setInterval(nextSlide, AUTO_INTERVAL);
+  }
+}
+
+function stopAuto() {
+  if (autoTimer) { clearInterval(autoTimer); autoTimer = null; }
+}
+
+function togglePause() {
+  if (isPaused) {
+    startAuto();
+  } else {
+    stopAuto();
+    isPaused = true;
+    updateFocusIndicator();
+  }
+}
+
+function updateFocusIndicator() {
+  const el = document.getElementById('focusIndicator');
+  if (isPaused) {
+    el.textContent = '⏸ Paused';
+  } else {
+    el.textContent = '▶ Auto-play';
+  }
+}
+
+function updateCategoryFocus() {
+  document.querySelectorAll('.cat-item').forEach((el, i) => {
+    el.classList.toggle('focused', i === currentCatIndex);
+  });
+  // Scroll into view
+  const focusedEl = document.querySelector('.cat-item.focused');
+  if (focusedEl) {
+    focusedEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }
+}
+
+// === KEYBOARD / REMOTE NAVIGATION ===
+document.addEventListener('keydown', (e) => {
+  const key = e.key || '';
+  const keyCode = e.keyCode || e.which;
+
+  // Back to launcher
+  if (key === 'Backspace' || key === 'Escape' || key === 'Back' || keyCode === 4 || keyCode === 8 || keyCode === 27) {
+    e.preventDefault();
+    window.location.href = 'index.php';
+    return;
+  }
+
+  if (categories.length === 0) {
+    // No categories, just slideshow nav
+    if (e.key === 'ArrowRight') { nextSlide(); stopAuto(); isPaused = true; updateFocusIndicator(); }
+    if (e.key === 'ArrowLeft') { prevSlide(); stopAuto(); isPaused = true; updateFocusIndicator(); }
+    if (e.key === 'Enter') { togglePause(); }
+    return;
+  }
+
+  switch(e.key) {
+    case 'ArrowUp':
+      e.preventDefault();
+      if (currentCatIndex > 0) {
+        currentCatIndex--;
+        updateCategoryFocus();
+        selectCategory(currentCatIndex);
+      }
+      break;
+    case 'ArrowDown':
+      e.preventDefault();
+      if (currentCatIndex < categories.length - 1) {
+        currentCatIndex++;
+        updateCategoryFocus();
+        selectCategory(currentCatIndex);
+      }
+      break;
+    case 'ArrowRight':
+      e.preventDefault();
+      nextSlide();
+      stopAuto();
+      isPaused = true;
+      updateFocusIndicator();
+      break;
+    case 'ArrowLeft':
+      e.preventDefault();
+      prevSlide();
+      stopAuto();
+      isPaused = true;
+      updateFocusIndicator();
+      break;
+    case 'Enter':
+      e.preventDefault();
+      togglePause();
+      break;
+  }
+});
+
+init();
+</script>
+</body>
+</html>

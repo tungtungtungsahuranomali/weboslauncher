@@ -1,0 +1,34 @@
+Setting > device > about > build (click oke 10x) > back > developer > enable usb debugging
+
+
+
+INSERT INTO `channels` (`id`, `lcn`, `title`, `category`, `logo_url`, `stream_url`, `status`) VALUES
+(6, 1, 'TVRI', 'Local', 'http://202.8.28.194/tvhotel/uploads/6946005218cbb.png', 'https://ott-balancer.tvri.go.id/live/eds/Nasional/hls/Nasional.m3u8', 'enabled'),
+(7, 2, 'Trans TV', 'Local', 'http://202.8.28.194/tvhotel/uploads/694601c1ae0a2.png', 'https://video.detik.com/transtv/smil:transtv.smil/index.m3u8', 'enabled'),
+(8, 3, 'Trans 7', 'Local', 'http://202.8.28.194/tvhotel/uploads/69460207afbc8.png', 'https://video.detik.com/trans7/smil:trans7.smil/index.m3u8', 'enabled'),
+(9, 4, 'CNBC Indonesia', 'Local', 'http://202.8.28.194/tvhotel/uploads/694602ea972b7.png', 'https://live.cnbcindonesia.com/livecnbc/smil:cnbctv.smil/playlist.m3u8', 'enabled'),
+(10, 5, 'Red Bull TV', 'Sport', 'http://202.8.28.194/tvhotel/uploads/69460515577b5.png', 'https://rbmn-live.akamaized.net/hls/live/590964/BoRB-AT/master_3360.m3u8', 'enabled'),
+(11, 6, 'Sharjah Sports', 'Sport', 'http://202.8.28.194/tvhotel/uploads/6946058b851e5.jpg', 'https://svs.itworkscdn.net/smc4sportslive/smc4.smil/playlist.m3u8', 'enabled'),
+(13, 7, 'CNA', 'Internasional', 'http://202.8.28.194/tvhotel/uploads/69460b792a68b.png', 'https://d2e1asnsl7br7b.cloudfront.net/7782e205e72f43aeb4a48ec97f66ebbe/index_5.m3u8', 'enabled'),
+(14, 8, 'Deutsche Welle', 'Internasional', 'http://202.8.28.194/tvhotel/uploads/69460baae0e7d.png', 'https://dwamdstream102.akamaized.net/hls/live/2015525/dwstream102/index.m3u8', 'enabled'),
+(19, 9, 'RT Documentary (English)', 'Internasional', 'http://202.8.28.194/tvhotel/uploads/69460e04ae67d.png', 'https://rt-rtd.rttv.com/dvr/rtdoc/playlist.m3u8', 'enabled'),
+(20, 10, 'Comet TV', 'Internasional', 'http://202.8.28.194/tvhotel/uploads/69460fe1862f0.png', 'https://fl1.moveonjoy.com/COMET/index.m3u8', 'enabled'),
+(21, 11, 'Movies', 'Internasional', 'http://202.8.28.194/tvhotel/uploads/6946103be383b.jfif', 'https://movies4free-lg.amagi.tv/playlist.m3u8', 'enabled'),
+(23, 13, 'Pluto TV Spotlight', 'Internasional', 'http://202.8.28.194/tvhotel/uploads/69461982e0e84.jfif', 'http://service-stitcher.clusters.pluto.tv/stitch/hls/channel/5ba3fb9c4b078e0f37ad34e8/master.m3u8?terminate=false&deviceType=web&deviceMake=web&deviceModel=web&sid=51&deviceId=5ba3fb9c4b078e0f37ad34e8&deviceVersion=DNT&appVersion=DNT&deviceDNT=0&userId=&advertisingId=&deviceLat=&deviceLon=&app_name=&appName=web&buildVersion=&appStoreUrl=&architecture=&includeExtendedEvents=false&marketingRegion=US&serverSideAds=false', 'enabled'),
+(24, 14, 'Pluto TV Action', 'Internasional', 'http://202.8.28.194/tvhotel/uploads/69461b164f165.jfif', 'http://service-stitcher.clusters.pluto.tv/stitch/hls/channel/561d7d484dc7c8770484914a/master.m3u8?terminate=false&deviceType=web&deviceMake=web&deviceModel=web&sid=54&deviceId=561d7d484dc7c8770484914a&deviceVersion=DNT&appVersion=DNT&deviceDNT=0&userId=&advertisingId=&deviceLat=&deviceLon=&app_name=&appName=web&buildVersion=&appStoreUrl=&architecture=&includeExtendedEvents=false&marketingRegion=US&serverSideAds=false', 'enabled'),
+(25, 15, 'Sky News (UK)', 'Internasional', 'http://202.8.28.194/tvhotel/uploads/69461b81f0506.jfif', 'https://ythls.armelin.one/channel/UCoMdktPbSTixAyNGwb-UYkQ.m3u8', 'enabled'),
+(26, 16, 'CBS News', 'Internasional', 'http://202.8.28.194/tvhotel/uploads/69461bdc3756d.jfif', 'https://dai.google.com/linear/hls/event/Sid4xiTQTkCT1SLu6rjUSQ/master.m3u8', 'enabled'),
+(27, 17, 'Global News', 'Internasional', 'http://202.8.28.194/tvhotel/uploads/69461c4db02e5.png', 'https://live.corusdigitaldev.com/groupd/live/49a91e7f-1023-430f-8d66-561055f3d0f7/live.isml/.m3u8', 'enabled'),
+(30, 12, 'SportsGrid', 'Sport', 'http://202.8.28.194/tvhotel/uploads/694629e01087d.png', 'https://sportsgrid-tribal.amagi.tv/playlist.m3u8', 'enabled'),
+(31, 18, 'Gisney JR', 'Internasional', 'http://202.8.28.194/tvhotel/uploads/69462b3e7f5a4.png', 'https://fl1.moveonjoy.com/DISNEY_JR/index.m3u8', 'enabled'),
+(32, 19, 'Fox Sport', 'Sport', 'http://202.8.28.194/tvhotel/uploads/69462bab797a7.jfif', 'https://fl1.moveonjoy.com/FOX_Sports_1/index.m3u8', 'enabled'),
+(33, 20, 'Golf Channel', 'Sport', 'http://202.8.28.194/tvhotel/uploads/69462c112def3.jfif', 'https://fl1.moveonjoy.com/GOLF/index.m3u8', 'enabled'),
+(34, 21, 'National Geographic Wild ', 'Internasional', 'http://202.8.28.194/tvhotel/uploads/69462c8e26a62.png', 'https://fl1.moveonjoy.com/Nat_Geo_Wild/index.m3u8', 'enabled'),
+
+
+
+
+SAAT SETTING UNIT
+
+Lihat pada menu entertainment apps apa saja yang akan di clear lihat com'nya.
+tidak perlu ketik adb shell pm clear'nya langsung comnya saja
