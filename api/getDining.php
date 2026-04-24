@@ -13,7 +13,7 @@ try {
     $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
     foreach ($rows as &$r) {
-        if (!empty($r['image_url']) && !str_starts_with($r['image_url'], 'http')) {
+        if (!empty($r['image_url']) && strpos($r['image_url'], 'http') !== 0) {
             $r['image_url'] = 'https://ogietv.com/AHotel/' . ltrim($r['image_url'], '/');
         }
     }

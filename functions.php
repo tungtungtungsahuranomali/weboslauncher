@@ -25,7 +25,7 @@ if (!function_exists('get_full_url')) {
         if (empty($path))
             return '';
 
-        if (str_starts_with($path, 'http://') || str_starts_with($path, 'https://')) {
+        if (strpos($path, 'http://') === 0 || strpos($path, 'https://') === 0) {
             return $path;
         }
 

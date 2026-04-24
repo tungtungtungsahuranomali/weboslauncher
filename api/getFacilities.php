@@ -7,7 +7,7 @@ case 'getFacilities':
     ");
     $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
     foreach ($rows as &$r) {
-        if (!empty($r['icon_path']) && !str_starts_with($r['icon_path'], 'http')) {
+        if (!empty($r['icon_path']) && strpos($r['icon_path'], 'http') !== 0) {
             $r['icon_path'] = 'https://ogietv.com/AHotel/' . ltrim($r['icon_path'], '/');
         }
     }
