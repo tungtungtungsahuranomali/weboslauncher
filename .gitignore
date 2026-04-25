@@ -2,8 +2,7 @@
 /vendor/
 
 # Uploads (dynamic content)
-# /uploads/*
-!/uploads/.gitkeep
+/uploads/
 
 # APK files
 /APK/*.apk
