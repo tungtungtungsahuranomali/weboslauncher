@@ -925,14 +925,36 @@ try {
             if ($lang === 'en') {
                 $title = get_setting('custom_greeting_title_en') ?: get_setting('custom_greeting_title') ?: 'Welcome';
                 $content = get_setting('custom_welcome_greeting_en') ?: get_setting('custom_welcome_greeting') ?: 'Welcome to our Hotel';
+                $title_enabled = (int) (get_setting('greeting_title_en_enabled') ?? 1);
+                $content_enabled = (int) (get_setting('greeting_content_en_enabled') ?? 1);
             }
             else {
                 $title = get_setting('custom_greeting_title') ?: 'Selamat Datang';
                 $content = get_setting('custom_welcome_greeting') ?: 'Selamat datang di Hotel kami';
+                $title_enabled = (int) (get_setting('greeting_title_id_enabled') ?? 1);
+                $content_enabled = (int) (get_setting('greeting_content_id_enabled') ?? 1);
             }
 
+            $title_color = get_setting('greeting_title_color') ?: '#000000';
+            $content_color = get_setting('greeting_content_color') ?: '#000000';
+            $btn_color = get_setting('greeting_btn_color') ?: '#facc15';
+            $btn_text_color = get_setting('greeting_btn_text_color') ?: '#000000';
+
             $image = get_setting('custom_greeting_image') ?? 'img/hotel3.png';
-            echo json_encode(['status' => 'success', 'data' => ['title' => htmlspecialchars_decode($title), 'content' => htmlspecialchars_decode($content), 'image' => get_full_url($image)]]);
+            echo json_encode([
+                'status' => 'success',
+                'data' => [
+                    'title' => htmlspecialchars_decode($title),
+                    'content' => htmlspecialchars_decode($content),
+                    'image' => get_full_url($image),
+                    'title_enabled' => (bool)$title_enabled,
+                    'content_enabled' => (bool)$content_enabled,
+                    'title_color' => $title_color,
+                    'content_color' => $content_color,
+                    'btn_color' => $btn_color,
+                    'btn_text_color' => $btn_text_color
+                ]
+            ]);
             break;
 
         case 'pushUpdate':

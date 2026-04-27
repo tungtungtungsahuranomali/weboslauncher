@@ -134,6 +134,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $content_en = trim($_POST['greeting_content_en'] ?? '');
         $image_url = trim($_POST['greeting_image_url'] ?? '');
 
+        // New settings
+        $title_id_enabled = isset($_POST['greeting_title_id_enabled']) ? 1 : 0;
+        $title_en_enabled = isset($_POST['greeting_title_en_enabled']) ? 1 : 0;
+        $content_id_enabled = isset($_POST['greeting_content_id_enabled']) ? 1 : 0;
+        $content_en_enabled = isset($_POST['greeting_content_en_enabled']) ? 1 : 0;
+        $title_color = $_POST['greeting_title_color'] ?? '#000000';
+        $content_color = $_POST['greeting_content_color'] ?? '#000000';
+        $btn_color = $_POST['greeting_btn_color'] ?? '#facc15';
+        $btn_text_color = $_POST['greeting_btn_text_color'] ?? '#000000';
+
         $uploadDir = __DIR__ . '/../uploads/greeting/';
         if (!is_dir($uploadDir))
             @mkdir($uploadDir, 0775, true);
@@ -159,6 +169,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         // Simpan versi English
         set_setting('custom_greeting_title_en', $title_en);
         set_setting('custom_welcome_greeting_en', $content_en);
+
+        // Simpan status enabled/disabled
+        set_setting('greeting_title_id_enabled', $title_id_enabled);
+        set_setting('greeting_title_en_enabled', $title_en_enabled);
+        set_setting('greeting_content_id_enabled', $content_id_enabled);
+        set_setting('greeting_content_en_enabled', $content_en_enabled);
+
+        // Simpan warna
+        set_setting('greeting_title_color', $title_color);
+        set_setting('greeting_content_color', $content_color);
+        set_setting('greeting_btn_color', $btn_color);
+        set_setting('greeting_btn_text_color', $btn_text_color);
 
         if (!empty($imagePath)) {
             set_setting('custom_greeting_image', $imagePath);
@@ -198,6 +220,16 @@ $custom_greeting_title_id = htmlspecialchars($db->query("SELECT setting_value FR
 $custom_greeting_content_en = htmlspecialchars($db->query("SELECT setting_value FROM global_settings WHERE setting_key='custom_welcome_greeting_en'")->fetchColumn() ?? '');
 $custom_greeting_title_en = htmlspecialchars($db->query("SELECT setting_value FROM global_settings WHERE setting_key='custom_greeting_title_en'")->fetchColumn() ?? '');
 $custom_greeting_image = htmlspecialchars($db->query("SELECT setting_value FROM global_settings WHERE setting_key='custom_greeting_image'")->fetchColumn() ?? '');
+
+// New settings fetch
+$greeting_title_id_enabled = (int) (get_setting('greeting_title_id_enabled') ?? 1);
+$greeting_title_en_enabled = (int) (get_setting('greeting_title_en_enabled') ?? 1);
+$greeting_content_id_enabled = (int) (get_setting('greeting_content_id_enabled') ?? 1);
+$greeting_content_en_enabled = (int) (get_setting('greeting_content_en_enabled') ?? 1);
+$greeting_title_color = get_setting('greeting_title_color') ?: '#000000';
+$greeting_content_color = get_setting('greeting_content_color') ?: '#000000';
+$greeting_btn_color = get_setting('greeting_btn_color') ?: '#facc15';
+$greeting_btn_text_color = get_setting('greeting_btn_text_color') ?: '#000000';
 ?>
 
 <div class="bg-white p-8 rounded-lg shadow-lg space-y-10">
@@ -270,14 +302,28 @@ $custom_greeting_image = htmlspecialchars($db->query("SELECT setting_value FROM 
 
             <!-- Judul -->
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                    <label class="block text-sm font-medium text-gray-700">🇮🇩 Judul Sambutan (Indonesia)</label>
+                <div class="space-y-2">
+                    <div class="flex justify-between items-center">
+                        <label class="block text-sm font-medium text-gray-700">🇮🇩 Judul Sambutan (Indonesia)</label>
+                        <label class="inline-flex items-center cursor-pointer select-none">
+                            <input type="checkbox" name="greeting_title_id_enabled" class="hidden peer" <?= $greeting_title_id_enabled ? 'checked' : '' ?>>
+                            <div class="relative w-10 h-5 bg-gray-200 rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-yellow-400"></div>
+                            <span class="ms-2 text-xs font-medium text-gray-900">Aktif</span>
+                        </label>
+                    </div>
                     <input type="text" name="greeting_title_id" value="<?= $custom_greeting_title_id ?>"
                         placeholder="Selamat Datang"
                         class="w-full mt-1 border border-gray-300 rounded px-3 py-2 focus:ring-2 focus:ring-yellow-400 focus:border-yellow-400">
                 </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-700">🇬🇧 Judul Sambutan (English)</label>
+                <div class="space-y-2">
+                    <div class="flex justify-between items-center">
+                        <label class="block text-sm font-medium text-gray-700">🇬🇧 Judul Sambutan (English)</label>
+                        <label class="inline-flex items-center cursor-pointer select-none">
+                            <input type="checkbox" name="greeting_title_en_enabled" class="hidden peer" <?= $greeting_title_en_enabled ? 'checked' : '' ?>>
+                            <div class="relative w-10 h-5 bg-gray-200 rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-yellow-400"></div>
+                            <span class="ms-2 text-xs font-medium text-gray-900">Aktif</span>
+                        </label>
+                    </div>
                     <input type="text" name="greeting_title_en" value="<?= $custom_greeting_title_en ?>"
                         placeholder="Welcome"
                         class="w-full mt-1 border border-gray-300 rounded px-3 py-2 focus:ring-2 focus:ring-yellow-400 focus:border-yellow-400">
@@ -286,28 +332,78 @@ $custom_greeting_image = htmlspecialchars($db->query("SELECT setting_value FROM 
 
             <!-- Isi Pesan -->
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                    <label class="block text-sm font-medium text-gray-700">🇮🇩 Isi Pesan Sambutan (Indonesia)</label>
+                <div class="space-y-2">
+                    <div class="flex justify-between items-center">
+                        <label class="block text-sm font-medium text-gray-700">🇮🇩 Isi Pesan Sambutan (Indonesia)</label>
+                        <label class="inline-flex items-center cursor-pointer select-none">
+                            <input type="checkbox" name="greeting_content_id_enabled" class="hidden peer" <?= $greeting_content_id_enabled ? 'checked' : '' ?>>
+                            <div class="relative w-10 h-5 bg-gray-200 rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-yellow-400"></div>
+                            <span class="ms-2 text-xs font-medium text-gray-900">Aktif</span>
+                        </label>
+                    </div>
                     <textarea name="greeting_content_id" rows="6" placeholder="Selamat datang di Hotel kami..."
                         class="w-full mt-1 border border-gray-300 rounded px-3 py-2 focus:ring-2 focus:ring-yellow-400 focus:border-yellow-400"><?= $custom_greeting_content_id ?></textarea>
                 </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-700">🇬🇧 Isi Pesan Sambutan (English)</label>
+                <div class="space-y-2">
+                    <div class="flex justify-between items-center">
+                        <label class="block text-sm font-medium text-gray-700">🇬🇧 Isi Pesan Sambutan (English)</label>
+                        <label class="inline-flex items-center cursor-pointer select-none">
+                            <input type="checkbox" name="greeting_content_en_enabled" class="hidden peer" <?= $greeting_content_en_enabled ? 'checked' : '' ?>>
+                            <div class="relative w-10 h-5 bg-gray-200 rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-yellow-400"></div>
+                            <span class="ms-2 text-xs font-medium text-gray-900">Aktif</span>
+                        </label>
+                    </div>
                     <textarea name="greeting_content_en" rows="6" placeholder="Welcome to our Hotel..."
                         class="w-full mt-1 border border-gray-300 rounded px-3 py-2 focus:ring-2 focus:ring-yellow-400 focus:border-yellow-400"><?= $custom_greeting_content_en ?></textarea>
                 </div>
             </div>
 
+            <!-- Pengaturan Warna -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 bg-gray-50 p-4 rounded-lg border border-gray-200">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">🎨 Warna Text Judul</label>
+                    <div class="flex items-center space-x-3">
+                        <input type="color" name="greeting_title_color" value="<?= $greeting_title_color ?>"
+                            class="h-10 w-20 cursor-pointer rounded border border-gray-300">
+                        <span class="text-xs text-gray-500 font-mono"><?= strtoupper($greeting_title_color) ?></span>
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">🎨 Warna Text Isi Pesan</label>
+                    <div class="flex items-center space-x-3">
+                        <input type="color" name="greeting_content_color" value="<?= $greeting_content_color ?>"
+                            class="h-10 w-20 cursor-pointer rounded border border-gray-300">
+                        <span class="text-xs text-gray-500 font-mono"><?= strtoupper($greeting_content_color) ?></span>
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">🎨 Warna Background Button</label>
+                    <div class="flex items-center space-x-3">
+                        <input type="color" name="greeting_btn_color" value="<?= $greeting_btn_color ?>"
+                            class="h-10 w-20 cursor-pointer rounded border border-gray-300">
+                        <span class="text-xs text-gray-500 font-mono"><?= strtoupper($greeting_btn_color) ?></span>
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">🎨 Warna Text Button</label>
+                    <div class="flex items-center space-x-3">
+                        <input type="color" name="greeting_btn_text_color" value="<?= $greeting_btn_text_color ?>"
+                            class="h-10 w-20 cursor-pointer rounded border border-gray-300">
+                        <span class="text-xs text-gray-500 font-mono"><?= strtoupper($greeting_btn_text_color) ?></span>
+                    </div>
+                </div>
+            </div>
+
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Upload Gambar (Wajib)</label>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Upload Gambar Baru</label>
                     <input type="file" name="upload_image" accept="image/*"
                         class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-yellow-50 file:text-yellow-700 hover:file:bg-yellow-100">
                 </div>
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Atau URL Gambar</label>
-                    <input type="url" name="greeting_image_url" value="<?= $custom_greeting_image ?>"
-                        placeholder="https://..."
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Atau Path/URL Gambar</label>
+                    <input type="text" name="greeting_image_url" value="<?= $custom_greeting_image ?>"
+                        placeholder="uploads/greeting/image.jpg atau https://..."
                         class="w-full border border-gray-300 rounded px-3 py-2 focus:ring-2 focus:ring-yellow-400 focus:border-yellow-400">
                 </div>
             </div>

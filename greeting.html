@@ -127,10 +127,10 @@
                     <div id="greeting-text-area"></div>
                     <div class="mt-8 flex items-center gap-6">
                         <div class="flex space-x-4">
-                            <button class="lang-btn" data-lang="id" tabindex="1" onclick="setLanguage('id')">
+                            <button class="lang-btn" data-lang="id" tabindex="1" onfocus="setLanguage('id')" onclick="setLanguage('id')">
                                 <img src="img/ind.png" alt="Indonesia">
                             </button>
-                            <button class="lang-btn" data-lang="en" tabindex="2" onclick="setLanguage('en')">
+                            <button class="lang-btn" data-lang="en" tabindex="2" onfocus="setLanguage('en')" onclick="setLanguage('en')">
                                 <img src="img/eng.png" alt="English">
                             </button>
                         </div>
@@ -194,16 +194,84 @@
                     }
                 }
 
-                document.getElementById('greeting-text-area').innerHTML = `
-                <h1 class="text-4xl font-bold text-yellow-400 mb-3">${item.title}</h1>
-                <div class="text-white text-lg leading-relaxed mb-5">${item.content.replace(/\n/g, '<br>')}</div>
-            `;
+                const greetingTextArea = document.getElementById('greeting-text-area');
+                const card = document.getElementById('content');
+                const buttonArea = document.querySelector('.mt-8'); // Area tombol
+                
+                let html = '';
+                if (item.title_enabled) {
+                    html += `<h1 class="text-4xl font-bold mb-3" style="color: ${item.title_color}">${item.title}</h1>`;
+                }
+                if (item.content_enabled) {
+                    html += `<div class="text-lg leading-relaxed mb-5" style="color: ${item.content_color}">${item.content.replace(/\n/g, '<br>')}</div>`;
+                }
+                
+                greetingTextArea.innerHTML = html;
 
-                document.getElementById('content').classList.remove('hidden');
+                // Jika dua-duanya non-aktif, hilangkan background card (transparan)
+                if (!item.title_enabled && !item.content_enabled) {
+                    card.style.background = 'transparent';
+                    card.style.backdropFilter = 'none';
+                    card.style.boxShadow = 'none';
+                    buttonArea.classList.remove('mt-8'); // Hilangkan margin atas jika teks tidak ada
+                    buttonArea.classList.add('mt-0');
+                    
+                    // Sembunyikan gambar jika teks tidak ada
+                    document.getElementById('greeting-image').classList.add('hidden');
+                    
+                    // Ubah alignment container utama ke Bawah Kiri
+                    const wrapper = document.querySelector('.content-wrapper');
+                    wrapper.style.alignItems = 'flex-end';
+                    wrapper.style.justifyContent = 'flex-start';
+                    card.style.padding = '0 0 80px 80px'; // Jarak dari pojok layar
+                } else {
+                    card.style.background = ''; // Kembali ke style CSS
+                    card.style.backdropFilter = '';
+                    card.style.boxShadow = '';
+                    buttonArea.classList.add('mt-8');
+                    buttonArea.classList.remove('mt-0');
+                    
+                    // Tampilkan kembali gambar
+                    document.getElementById('greeting-image').classList.remove('hidden');
+                    
+                    // Kembalikan ke posisi tengah jika ada teks
+                    const wrapper = document.querySelector('.content-wrapper');
+                    wrapper.style.alignItems = 'center';
+                    wrapper.style.justifyContent = 'center';
+                    card.style.padding = '40px';
+                }
+
+                card.classList.remove('hidden');
 
                 // Update teks tombol Lanjut sesuai bahasa
                 const btnText = (lang === 'en') ? 'Continue &rarr;' : 'Lanjut &rarr;';
-                document.getElementById('btn').innerHTML = btnText;
+                const btn = document.getElementById('btn');
+                btn.innerHTML = btnText;
+                
+                // Update button colors
+                if (item.btn_color) {
+                    btn.style.background = item.btn_color;
+                }
+                if (item.btn_text_color) {
+                    btn.style.color = item.btn_text_color;
+                }
+
+                // Update language button hover/active colors
+                if (item.btn_color) {
+                    const styleId = 'dynamic-lang-btn-style';
+                    let styleEl = document.getElementById(styleId);
+                    if (!styleEl) {
+                        styleEl = document.createElement('style');
+                        styleEl.id = styleId;
+                        document.head.appendChild(styleEl);
+                    }
+                    styleEl.innerHTML = `
+                        .lang-btn.active, .lang-btn:focus, .lang-btn:hover {
+                            border-color: ${item.btn_color} !important;
+                            box-shadow: 0 0 15px ${item.btn_color}80 !important;
+                        }
+                    `;
+                }
 
             } catch (e) {
                 console.warn(`Greeting load gagal (attempt ${retryCount + 1}/${MAX_RETRIES}):`, e.message);
@@ -237,10 +305,10 @@
                 <div id="greeting-text-area"></div>
                 <div class="mt-8 flex items-center gap-6">
                     <div class="flex space-x-4">
-                        <button class="lang-btn" data-lang="id" tabindex="1" onclick="setLanguage('id')">
+                        <button class="lang-btn" data-lang="id" tabindex="1" onfocus="setLanguage('id')" onclick="setLanguage('id')">
                             <img src="img/ind.png" alt="Indonesia">
                         </button>
-                        <button class="lang-btn" data-lang="en" tabindex="2" onclick="setLanguage('en')">
+                        <button class="lang-btn" data-lang="en" tabindex="2" onfocus="setLanguage('en')" onclick="setLanguage('en')">
                             <img src="img/eng.png" alt="English">
                         </button>
                     </div>
