@@ -483,12 +483,6 @@ include 'config.php';
       promotion: 'promotion.html?v=7'
     };
 
-    const WEB_URLS = {
-      netflix: 'https://www.netflix.com',
-      spotify: 'https://open.spotify.com',
-      vidio: 'https://www.vidio.com',
-      youtube: 'https://www.youtube.com'
-    };
     // == Kunci localStorage 
     const STORAGE_REG_CODE_KEY = 'myRegistrationCode_v8_final';
     const STORAGE_DEVICE_ID_KEY = 'myDeviceID_v8_final';
@@ -505,11 +499,6 @@ include 'config.php';
     let currentFocusIndex = 0;
     let currentGuestName = "Fetching...";
     const DEFAULT_FOCUS_KEY = 'facilities';
-    // === Touch swipe ===
-    let touchStartX = 0;
-    let touchStartY = 0;
-    const SWIPE_THRESHOLD = 50;
-
 
     // === Elemen utama ===
     const bootLoading = document.getElementById('boot-loading');
@@ -717,8 +706,6 @@ include 'config.php';
         }, 100);
 
         document.addEventListener('keydown', handleKeyDown);
-        document.addEventListener('touchstart', handleTouchStart, { passive: true });
-        document.addEventListener('touchend', handleTouchEnd, { passive: true });
 
         updateClock(weatherInfo);
         setInterval(() => updateClock(weatherInfo), 1000);
@@ -765,7 +752,6 @@ include 'config.php';
         el.dataset.index = i;
         el.dataset.page = PAGE_ROUTES[app.app_key] || '';
         el.dataset.pkg = app.android_package || '';
-        el.dataset.key = app.app_key || '';
         el.dataset.label = app.app_name || 'App';
         el.innerHTML = `<img src="${app.icon_path}" class="menu-item-icon" alt=""><span>${app.app_name}</span>`;
 
@@ -786,16 +772,7 @@ include 'config.php';
         window.location.href = item.dataset.page;
       }
       else if (item.dataset.pkg) {
-        if (/android/i.test(navigator.userAgent)) {
-          launchNativeApp(item.dataset.pkg, item.dataset.label);
-        } else {
-          const webUrl = WEB_URLS[item.dataset.key];
-          if (webUrl) {
-            window.location.href = webUrl;
-          } else {
-            window.location.href = item.dataset.pkg;
-          }
-        }
+        launchNativeApp(item.dataset.pkg, item.dataset.label);
       }
     }
 
@@ -919,27 +896,7 @@ include 'config.php';
       updateArrowVisibility();
     }
 
-    function handleTouchStart(e) {
-      touchStartX = e.changedTouches[0].screenX;
-      touchStartY = e.changedTouches[0].screenY;
-    }
-
-    function handleTouchEnd(e) {
-      if (!touchStartX || !touchStartY) return;
-      const deltaX = e.changedTouches[0].screenX - touchStartX;
-      const deltaY = e.changedTouches[0].screenY - touchStartY;
-      if (Math.abs(deltaX) > Math.abs(deltaY) && Math.abs(deltaX) > SWIPE_THRESHOLD) {
-        if (deltaX < 0 && currentFocusIndex < menuItems.length - 1) {
-          menuItems[currentFocusIndex + 1].focus();
-        } else if (deltaX > 0 && currentFocusIndex > 0) {
-          menuItems[currentFocusIndex - 1].focus();
-        }
-      }
-      touchStartX = 0;
-      touchStartY = 0;
-    }
-
-        function scrollMenu() {
+    function scrollMenu() {
       const focused = menuItems[currentFocusIndex];
       if (!focused) return;
       const containerWidth = menuScrollContainer.offsetWidth;
