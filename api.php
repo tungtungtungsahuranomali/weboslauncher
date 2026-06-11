@@ -977,8 +977,24 @@ try {
                 break;
             }
             $stmt = $db->prepare("INSERT INTO managed_devices (device_id, device_name, room_number, registered_at, last_seen) VALUES (?, ?, ?, NOW(), NOW()) ON DUPLICATE KEY UPDATE last_seen = NOW()");
-            $stmt->execute([$device_id, $device_id, $device_id]);
+            $short = substr($device_id, 0, 10);
+            $stmt->execute([$device_id, $device_id, $short]);
             echo json_encode(['status' => 'success', 'message' => 'Device registered', 'device_id' => $device_id]);
+            break;
+
+        case 'updateDeviceInfo':
+            $input = json_decode(file_get_contents('php://input'), true);
+            $device_id = strtoupper(trim($input['device_id'] ?? ($_POST['device_id'] ?? '')));
+            $device_name = trim($input['device_name'] ?? ($_POST['device_name'] ?? ''));
+            $room_number = trim($input['room_number'] ?? ($_POST['room_number'] ?? ''));
+            $unit_id = (int)($input['unit_id'] ?? ($_POST['unit_id'] ?? 0));
+            if (empty($device_id)) {
+                echo json_encode(['status' => 'error', 'message' => 'device_id wajib diisi']);
+                break;
+            }
+            $stmt = $db->prepare("UPDATE managed_devices SET device_name = ?, room_number = ?, unit_id = ? WHERE device_id = ?");
+            $stmt->execute([$device_name ?: $device_id, $room_number ?: $device_id, $unit_id ?: null, $device_id]);
+            echo json_encode(['status' => 'success', 'message' => 'Device info updated']);
             break;
 
         default:
