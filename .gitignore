@@ -29,3 +29,4 @@ Thumbs.db
 
 # Composer lock (optional - remove if needed)
 /composer.lock
+id_ed25519_new
