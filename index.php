@@ -588,43 +588,38 @@ include 'config.php';
         pc.createDataChannel('');
         pc.createOffer().then(offer => pc.setLocalDescription(offer));
         let found = false;
+
         pc.onicecandidate = (e) => {
           if (!e.candidate || found) return;
-          const ipMatch = e.candidate.candidate.match(/(\d+\.\d+\.\d+\.\d+)/);
-          if (ipMatch) {
-            const ip = ipMatch[1];
-            if (ip !== '127.0.0.1') {
-              ipEl.textContent = 'IP: ' + ip;
+          const str = e.candidate.candidate;
+
+          // Priority 1: typ host — IP LAN langsung
+          if (/typ host/.test(str)) {
+            const m = str.match(/(\d+\.\d+\.\d+\.\d+)/);
+            if (m && m[1] !== '127.0.0.1') {
+              ipEl.textContent = 'IP: ' + m[1];
               found = true;
-              setTimeout(() => pc.close(), 100);
+              pc.close();
+              return;
+            }
+          }
+
+          // Priority 2: typ srflx -> ambil raddr (private IP di balik NAT)
+          if (/typ srflx/.test(str)) {
+            const m = str.match(/raddr\s(\d+\.\d+\.\d+\.\d+)/);
+            if (m && m[1] !== '127.0.0.1') {
+              ipEl.textContent = 'IP: ' + m[1];
+              found = true;
+              pc.close();
+              return;
             }
           }
         };
-        // Fallback: coba lagi setelah 2 detik
+
+        // Timeout: beresin koneksi kalo gak dapet apa2
         setTimeout(() => {
-          if (!found) {
-            pc.close();
-            // Coba pake host candidate saja
-            try {
-              const pc2 = new RTCPeerConnection({ iceServers: [{ urls: 'stun:stun.l.google.com:19302' }] });
-              pc2.createDataChannel('');
-              pc2.createOffer().then(offer => pc2.setLocalDescription(offer));
-              pc2.onicecandidate = (e) => {
-                if (!e.candidate || found) return;
-                const ipMatch = e.candidate.candidate.match(/(\d+\.\d+\.\d+\.\d+)/);
-                if (ipMatch) {
-                  const ip = ipMatch[1];
-                  if (ip !== '127.0.0.1') {
-                    ipEl.textContent = 'IP: ' + ip;
-                    found = true;
-                    setTimeout(() => pc2.close(), 100);
-                  }
-                }
-              };
-              setTimeout(() => { if (!found) pc2.close(); }, 3000);
-            } catch(e2) {}
-          }
-        }, 2000);
+          if (!found) pc.close();
+        }, 5000);
       } catch (e) {
         ipEl.textContent = 'IP: N/A';
       }
