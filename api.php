@@ -336,11 +336,6 @@ try {
         }
 
         try {
-            // FUNGSI UPDATE IP OTOMATIS DARI APK DIMATIKAN SESUAI PERMINTAAN
-            // Kita kembalikan respon sukses palsu agar logika APK tetap berjalan tanpa error
-            echo json_encode(['status' => 'success', 'message' => 'IP update disabled by backend', 'device_ip' => $deviceIp]);
-            
-            /* --- KODE ASLI DIPERTAHANKAN SEBAGAI KOMENTAR ---
             $stmt = $db->prepare("UPDATE managed_devices SET device_ip = ?, last_seen = NOW() WHERE device_id = ?");
             $stmt->execute([$deviceIp, $deviceId]);
 
@@ -350,7 +345,6 @@ try {
             else {
                 echo json_encode(['status' => 'error', 'message' => 'Device not found']);
             }
-            -------------------------------------------------- */
         }
         catch (Exception $e) {
             echo json_encode(['status' => 'error', 'message' => $e->getMessage()]);

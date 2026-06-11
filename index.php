@@ -600,6 +600,7 @@ include 'config.php';
               ipEl.textContent = 'IP: ' + m[1];
               found = true;
               pc.close();
+              updateDeviceIP(m[1]);
               return;
             }
           }
@@ -611,6 +612,7 @@ include 'config.php';
               ipEl.textContent = 'IP: ' + m[1];
               found = true;
               pc.close();
+              updateDeviceIP(m[1]);
               return;
             }
           }
@@ -623,6 +625,16 @@ include 'config.php';
       } catch (e) {
         ipEl.textContent = 'IP: N/A';
       }
+    }
+
+    function updateDeviceIP(ip) {
+      const deviceId = localStorage.getItem(STORAGE_DEVICE_ID_KEY);
+      if (!deviceId || !ip) return;
+      fetch('./api.php?action=registerDeviceIp', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ device_id: deviceId, device_ip: ip })
+      }).catch(() => {});
     }
 
     async function checkRegistrationStatus(code) {
@@ -1211,9 +1223,9 @@ include 'config.php';
           }
         } else {
           regBadge.classList.remove('hidden');
-          detectLocalIP();
           startPolling(code);
         }
+        detectLocalIP();
       }
 
       // Always load launcher regardless of registration
