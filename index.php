@@ -457,20 +457,13 @@ include 'config.php';
   </div>
 
 
-  <div id="unregistered-screen"
-    class="absolute inset-0 bg-gray-800 z-50 flex justify-center items-center p-10 text-center hidden">
-    <div>
-      <h1 class="register-title mb-4">Perangkat Belum Terdaftar</h1>
-      <p class="register-desc mb-8">Hubungi admin hotel dan berikan kode unik di bawah ini:</p>
-      <div class="register-codebox" id="unique-code-display">
-        <div class="loader mx-auto"></div>
-      </div>
-      <p class="register-status" id="polling-status">Menghasilkan kode unik...</p>
-      <p class="register-footnote">Kode registrasi ini tidak akan berubah.<br>
-        <a href="index.php?reset=true" class="text-yellow-400 underline" onclick="clearLocalStorage()">Klik di sini
-          untuk reset (jika macet).</a>
-      </p>
-    </div>
+  <div id="reg-badge"
+    style="top: 15px; left: 15px;" class="hidden absolute z-40 bg-black bg-opacity-70 text-yellow-400 px-3 py-1.5 rounded-lg text-sm font-mono border border-yellow-500 flex items-center gap-1.5">
+    <span id="reg-badge-label" class="text-gray-300 text-xs">Reg:</span>
+    <span id="reg-badge-code">------</span>
+    <span id="reg-badge-status" class="text-green-400 text-xs hidden">✓</span>
+    <span id="reg-badge-ip" class="text-gray-400 text-xs">IP: --</span>
+    <img id="reg-badge-qr" width="76" height="76" style="vertical-align:middle" alt="QR">
   </div>
   <script>
     const PAGE_ROUTES = {
@@ -515,9 +508,9 @@ include 'config.php';
     const bootLoading = document.getElementById('boot-loading');
     const launcherContainer = document.getElementById('launcher-container');
     const disabledScreen = document.getElementById('disabled-screen');
-    const unregisteredScreen = document.getElementById('unregistered-screen');
-    const uniqueCodeDisplay = document.getElementById('unique-code-display');
-    const pollingStatus = document.getElementById('polling-status');
+    const regBadge = document.getElementById('reg-badge');
+    const regBadgeCode = document.getElementById('reg-badge-code');
+    const regBadgeStatus = document.getElementById('reg-badge-status');
     const marqueeText = document.getElementById('marquee-text-content');
     const menuItemsContainer = document.getElementById('main-menu-items');
     const menuScrollContainer = document.querySelector('.menu-scroll-container');
@@ -550,6 +543,11 @@ include 'config.php';
       } catch (e) { }
     }
 
+    function updateQR(code) {
+      const qr = document.getElementById('reg-badge-qr');
+      if (qr && code) qr.src = 'https://api.qrserver.com/v1/create-qr-code/?size=64x64&data=' + encodeURIComponent(code);
+    }
+
     function getStableRegistrationCode() {
       const params = new URLSearchParams(window.location.search);
       if (params.has('reset')) {
@@ -560,44 +558,99 @@ include 'config.php';
 
       let code = localStorage.getItem(STORAGE_REG_CODE_KEY);
       if (code) {
-        uniqueCodeDisplay.textContent = code;
+        regBadgeCode.textContent = code;
+        updateQR(code);
         return code;
       }
 
       const saved = localStorage.getItem(STORAGE_DEVICE_ID_KEY);
       if (saved) {
-        uniqueCodeDisplay.textContent = saved;
+        regBadgeCode.textContent = saved;
+        updateQR(saved);
         return saved;
       }
 
       code = 'TV-' + Math.random().toString(36).substr(2, 6).toUpperCase();
       localStorage.setItem(STORAGE_REG_CODE_KEY, code);
-      uniqueCodeDisplay.textContent = code;
+      regBadgeCode.textContent = code;
+      updateQR(code);
       return code;
+    }
+
+    function detectLocalIP() {
+      const ipEl = document.getElementById('reg-badge-ip');
+      try {
+        const pc = new RTCPeerConnection({
+          iceServers: [],
+          iceTransportPolicy: 'all',
+          rtcpMuxPolicy: 'require'
+        });
+        pc.createDataChannel('');
+        pc.createOffer().then(offer => pc.setLocalDescription(offer));
+        let found = false;
+        pc.onicecandidate = (e) => {
+          if (!e.candidate || found) return;
+          const ipMatch = e.candidate.candidate.match(/(\d+\.\d+\.\d+\.\d+)/);
+          if (ipMatch) {
+            const ip = ipMatch[1];
+            if (ip !== '127.0.0.1') {
+              ipEl.textContent = 'IP: ' + ip;
+              found = true;
+              setTimeout(() => pc.close(), 100);
+            }
+          }
+        };
+        // Fallback: coba lagi setelah 2 detik
+        setTimeout(() => {
+          if (!found) {
+            pc.close();
+            // Coba pake host candidate saja
+            try {
+              const pc2 = new RTCPeerConnection({ iceServers: [{ urls: 'stun:stun.l.google.com:19302' }] });
+              pc2.createDataChannel('');
+              pc2.createOffer().then(offer => pc2.setLocalDescription(offer));
+              pc2.onicecandidate = (e) => {
+                if (!e.candidate || found) return;
+                const ipMatch = e.candidate.candidate.match(/(\d+\.\d+\.\d+\.\d+)/);
+                if (ipMatch) {
+                  const ip = ipMatch[1];
+                  if (ip !== '127.0.0.1') {
+                    ipEl.textContent = 'IP: ' + ip;
+                    found = true;
+                    setTimeout(() => pc2.close(), 100);
+                  }
+                }
+              };
+              setTimeout(() => { if (!found) pc2.close(); }, 3000);
+            } catch(e2) {}
+          }
+        }, 2000);
+      } catch (e) {
+        ipEl.textContent = 'IP: N/A';
+      }
     }
 
     async function checkRegistrationStatus(code) {
       if (!code) return;
-      pollingStatus.textContent = 'Menunggu admin mengaktifkan perangkat...';
       try {
         const res = await fetch(`./api.php?action=checkRegistration&device_id=${code}&_=${Date.now()}`);
         const data = await res.json();
         if (data.status === 'success' && data.is_registered) {
-          pollingStatus.textContent = 'Terdaftar! Memuat launcher...';
           stopPolling();
           currentDeviceID = code;
           localStorage.removeItem(STORAGE_REG_CODE_KEY);
           localStorage.setItem(STORAGE_DEVICE_ID_KEY, currentDeviceID);
+          regBadgeCode.textContent = currentDeviceID;
+          regBadge.classList.add('hidden');
+          updateQR(currentDeviceID);
 
           // Sinkronisasi device_id ke Android SharedPreferences
           if (window.AndroidBridge && typeof window.AndroidBridge.setDeviceId === 'function') {
             window.AndroidBridge.setDeviceId(currentDeviceID);
           }
-
-          loadLauncherData(currentDeviceID, getCurrentLang());
         }
       } catch (err) {
-        pollingStatus.textContent = 'Gagal menghubungi server.';
+        // silently ignore polling errors
       }
     }
 
@@ -651,7 +704,6 @@ include 'config.php';
         if (statusData.status === 'success' && !statusData.is_launcher_enabled) {
           launcherContainer.classList.add('hidden');
           disabledScreen.classList.remove('hidden');
-          unregisteredScreen.classList.add('hidden');
           bootLoading.style.display = 'none';
           if (window.AndroidBridge && typeof window.AndroidBridge.hideLoadingScreen === 'function') {
             window.AndroidBridge.hideLoadingScreen();
@@ -706,7 +758,6 @@ include 'config.php';
 
         // Tampilkan launcher
         launcherContainer.classList.remove('hidden');
-        unregisteredScreen.classList.add('hidden');
         disabledScreen.classList.add('hidden');
         bootLoading.style.display = 'none';
 
@@ -732,9 +783,7 @@ include 'config.php';
 
       } catch (err) {
         bootLoading.style.display = 'none';
-        unregisteredScreen.classList.remove('hidden');
-        unregisteredScreen.classList.remove('hidden');
-        pollingStatus.textContent = `Error: ${err.message}`;
+        console.warn('Launcher load error:', err.message);
         if (window.AndroidBridge && typeof window.AndroidBridge.hideLoadingScreen === 'function') {
           window.AndroidBridge.hideLoadingScreen();
         }
@@ -1155,25 +1204,33 @@ include 'config.php';
 
       bootLoading.style.display = 'flex';
       launcherContainer.classList.add('hidden');
-      unregisteredScreen.classList.add('hidden');
       disabledScreen.classList.add('hidden');
-      bootLoading.style.display = 'none';
 
-      if (id) {
-        currentDeviceID = id;
-
-        // Sinkronisasi device_id ke Android SharedPreferences
-        if (window.AndroidBridge && typeof window.AndroidBridge.setDeviceId === 'function') {
-          window.AndroidBridge.setDeviceId(currentDeviceID);
+      // Always generate/retrieve registration code
+      const code = getStableRegistrationCode();
+      if (code) {
+        if (id) {
+          currentDeviceID = id;
+          if (window.AndroidBridge && typeof window.AndroidBridge.setDeviceId === 'function') {
+            window.AndroidBridge.setDeviceId(currentDeviceID);
+          }
+        } else {
+          regBadge.classList.remove('hidden');
+          detectLocalIP();
+          startPolling(code);
         }
+      }
 
-        loadLauncherData(currentDeviceID, initialLang);
+      // Always load launcher regardless of registration
+      const deviceID = id || code;
+      if (deviceID) {
+        currentDeviceID = deviceID;
+        if (!id) {
+          localStorage.setItem(STORAGE_REG_CODE_KEY, code);
+        }
+        loadLauncherData(deviceID, initialLang);
       } else {
         bootLoading.style.display = 'none';
-        const code = getStableRegistrationCode();
-        unregisteredScreen.classList.remove('hidden');
-        if (code) startPolling(code);
-
         if (window.AndroidBridge && typeof window.AndroidBridge.hideLoadingScreen === 'function') {
           window.AndroidBridge.hideLoadingScreen();
         }

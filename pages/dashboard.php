@@ -84,7 +84,11 @@ try {
     <div class="bg-white p-6 rounded-xl shadow-md">
       <h2 class="text-xl font-semibold text-gray-700 mb-2">Perangkat Terdaftar</h2>
       <p class="text-gray-500 mb-4">Total perangkat aktif dalam sistem ini.</p>
-      <p class="text-5xl font-bold text-gray-900"><?= $total_devices ?></p>
+      <p class="text-5xl font-bold text-gray-900 mb-4"><?= $total_devices ?></p>
+      <a href="admin.php?page=scan_register"
+         class="inline-block px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm rounded-lg font-semibold">
+        📷 Scan Register
+      </a>
     </div>
 
     <!-- RUNNING TEXT -->

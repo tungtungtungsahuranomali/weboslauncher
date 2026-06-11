@@ -239,6 +239,7 @@ $admin_user = $_SESSION['admin_display_name'] ?? $_SESSION['admin_username'] ?? 
                     $page_titles = [
                         'dashboard' => '📊 Dashboard',
                         'devices' => '📱 Perangkat',
+                        'scan_register' => '📷 Scan Register',
                         'checkin' => '🔑 Manajemen Check-In',
                         'send_notification' => '🔔 Notifikasi',
                         'kat_facilities' => '📂 Kategori Facilities',
@@ -308,6 +309,9 @@ $admin_user = $_SESSION['admin_display_name'] ?? $_SESSION['admin_username'] ?? 
                             <?php endif; ?>
                             <?php if (has_permission('devices')): ?>
                                 <a href="?page=devices" class="sidebar-link <?= ($page === 'devices') ? 'active' : '' ?>">📦 Perangkat</a>
+                            <?php endif; ?>
+                            <?php if (has_permission('scan_register')): ?>
+                                <a href="?page=scan_register" class="sidebar-link <?= ($page === 'scan_register') ? 'active' : '' ?>">📷 Scan Register</a>
                             <?php endif; ?>
                             <?php if (has_permission('checkin')): ?>
                                 <a href="?page=checkin" class="sidebar-link <?= ($page === 'checkin') ? 'active' : '' ?>">🔑 Check-In /
@@ -459,6 +463,7 @@ $admin_user = $_SESSION['admin_display_name'] ?? $_SESSION['admin_username'] ?? 
                 $allowed_pages = [
                     'dashboard',
                     'devices',
+                    'scan_register',
                     'checkin',
                     'kat_facilities',
                     'facilities',

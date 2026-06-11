@@ -975,6 +975,18 @@ try {
             echo json_encode(['status' => 'success', 'message' => 'Update berhasil di-push! Semua TV akan auto-update dalam 5 menit.']);
             break;
 
+        case 'registerDeviceByCode':
+            $input = json_decode(file_get_contents('php://input'), true);
+            $device_id = strtoupper(trim($input['device_id'] ?? ($_POST['device_id'] ?? '')));
+            if (empty($device_id)) {
+                echo json_encode(['status' => 'error', 'message' => 'device_id wajib diisi']);
+                break;
+            }
+            $stmt = $db->prepare("INSERT INTO managed_devices (device_id, device_name, room_number, registered_at, last_seen) VALUES (?, ?, ?, NOW(), NOW()) ON DUPLICATE KEY UPDATE last_seen = NOW()");
+            $stmt->execute([$device_id, $device_id, $device_id]);
+            echo json_encode(['status' => 'success', 'message' => 'Device registered', 'device_id' => $device_id]);
+            break;
+
         default:
             throw new Exception('Invalid Action');
     }
