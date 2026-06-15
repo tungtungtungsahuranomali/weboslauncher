@@ -132,7 +132,7 @@ input::placeholder { color: #9ca3af; }
       </button>
     </form>
 
-    <p class="text-center text-gray-400 text-xs mt-6">Â© 2025 TakeOff IPTV â€¢ Powered by OgieTV</p>
+    <p class="text-center text-gray-400 text-xs mt-6">© 2025 TakeOff IPTV • Powered by takeoff.web.id</p>
   </div>
 </body>
 </html>

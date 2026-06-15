@@ -109,7 +109,7 @@ try {
             // normalisasi URL icon
             foreach ($apps as &$app) {
                 if (!empty($app['icon_path']) && !preg_match('~^https?://~', $app['icon_path'])) {
-                    $app['icon_path'] = 'https://ogietv.com/AHotel/' . ltrim($app['icon_path'], '/');
+                    $app['icon_path'] = 'https://takeoff.web.id/' . ltrim($app['icon_path'], '/');
                 }
             }
 
