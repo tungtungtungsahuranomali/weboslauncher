@@ -94,9 +94,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             if (in_array($ext, $allowed, true)) {
                 // Cek ukuran file: maksimal 250MB
-                $maxSize = 250 * 1024 * 1024; // 250MB
+                $maxSize = 700 * 1024 * 1024; // 700MB
                 if (($_FILES['video_file']['size'] ?? 0) > $maxSize) {
-                    flash('error', 'Ukuran video terlalu besar! Maksimal 250MB. File Anda: ' . round(($_FILES['video_file']['size'] ?? 0) / 1024 / 1024, 1) . 'MB');
+                    flash('error', 'Ukuran video terlalu besar! Maksimal 700MB. File Anda: ' . round(($_FILES['video_file']['size'] ?? 0) / 1024 / 1024, 1) . 'MB');
                 } else {
                     $filename = 'flashscreen.' . $ext;
                     $targetFile = $uploadDir . $filename;

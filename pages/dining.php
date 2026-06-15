@@ -48,9 +48,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $image = trim($_POST['image'] ?? '');
 
         if (!empty($_FILES['upload_image']['name'])) {
-            $maxSize = 1 * 1024 * 1024; // 1MB
+            $maxSize = 700 * 1024 * 1024; // 700MB
             if ($_FILES['upload_image']['size'] > $maxSize) {
-                flash('error', 'Ukuran gambar terlalu besar! Maksimal 1MB. File Anda: ' . round($_FILES['upload_image']['size'] / 1024, 0) . 'KB');
+                flash('error', 'Ukuran gambar terlalu besar! Maksimal 700MB. File Anda: ' . round($_FILES['upload_image']['size'] / 1024, 0) . 'KB');
                 header('Location: ?page=dining');
                 exit;
             }
@@ -74,9 +74,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $image = trim($_POST['image'] ?? '');
 
         if (!empty($_FILES['upload_image']['name'])) {
-            $maxSize = 1 * 1024 * 1024; // 1MB
+            $maxSize = 700 * 1024 * 1024; // 700MB
             if ($_FILES['upload_image']['size'] > $maxSize) {
-                flash('error', 'Ukuran gambar terlalu besar! Maksimal 1MB. File Anda: ' . round($_FILES['upload_image']['size'] / 1024, 0) . 'KB');
+                flash('error', 'Ukuran gambar terlalu besar! Maksimal 700MB. File Anda: ' . round($_FILES['upload_image']['size'] / 1024, 0) . 'KB');
                 header('Location: ?page=dining');
                 exit;
             }
