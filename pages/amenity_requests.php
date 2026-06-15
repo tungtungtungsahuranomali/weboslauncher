@@ -7,14 +7,43 @@ if ($db === null) {
     echo "<div class='p-4 bg-red-100 text-red-700 rounded'>❌ Gagal koneksi database.</div>";
     return;
 }
-?>
 
+// Handle POST actions
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $id = (int)($_POST['id'] ?? 0);
+    if ($id <= 0) {
+        header('Location: ?page=amenity_requests');
+        exit;
+    }
+
+    try {
+        if (isset($_POST['selesai'])) {
+            $db->prepare("UPDATE amenity_requests SET status='Delivered' WHERE id=?")->execute([$id]);
+        }
+        if (isset($_POST['hapus'])) {
+            $db->prepare("DELETE FROM amenity_requests WHERE id=?")->execute([$id]);
+        }
+    } catch (Exception $e) {
+        // silent
+    }
+
+    header('Location: ?page=amenity_requests');
+    exit;
+}
+
+$statusFilter = $_GET['status'] ?? '';
+?>
 <h1 class="text-2xl font-bold text-yellow-500 mb-6">📦 Permintaan Amenities</h1>
 
 <div class="bg-white rounded-lg shadow p-6">
   <div class="flex justify-between items-center mb-4">
     <h2 class="text-lg font-semibold text-gray-700">Daftar Permintaan Masuk</h2>
-    <button onclick="location.reload()" class="px-4 py-2 bg-yellow-400 text-gray-900 font-semibold rounded hover:bg-yellow-500">🔄 Refresh</button>
+    <div class="flex gap-2">
+      <a href="?page=amenity_requests" class="px-3 py-1.5 text-sm rounded <?= $statusFilter === '' ? 'bg-yellow-400 text-gray-900' : 'bg-gray-200' ?>">Semua</a>
+      <a href="?page=amenity_requests&status=Pending" class="px-3 py-1.5 text-sm rounded <?= $statusFilter === 'Pending' ? 'bg-yellow-400 text-gray-900' : 'bg-gray-200' ?>">Pending</a>
+      <a href="?page=amenity_requests&status=Delivered" class="px-3 py-1.5 text-sm rounded <?= $statusFilter === 'Delivered' ? 'bg-yellow-400 text-gray-900' : 'bg-gray-200' ?>">Selesai</a>
+      <button onclick="location.reload()" class="px-4 py-2 bg-yellow-400 text-gray-900 font-semibold rounded hover:bg-yellow-500">🔄 Refresh</button>
+    </div>
   </div>
 
   <div class="overflow-x-auto">
@@ -33,8 +62,16 @@ if ($db === null) {
       <tbody>
         <?php
         try {
-          $stmt = $db->query("SELECT * FROM amenity_requests ORDER BY id DESC");
-          $requests = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            $sql = "SELECT * FROM amenity_requests";
+            $params = [];
+            if ($statusFilter !== '') {
+                $sql .= " WHERE status=?";
+                $params[] = $statusFilter;
+            }
+            $sql .= " ORDER BY id DESC";
+            $stmt = $db->prepare($sql);
+            $stmt->execute($params);
+            $requests = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
           if (!$requests) {
               echo "<tr><td colspan='7' class='text-center text-gray-500 py-4'>Belum ada permintaan masuk.</td></tr>";
@@ -42,6 +79,7 @@ if ($db === null) {
               $no = 1;
               foreach ($requests as $req) {
                   $items = json_decode($req['items'], true);
+                  $isPending = $req['status'] === 'Pending';
                   echo "<tr class='hover:bg-gray-50'>";
                   echo "<td class='border px-3 py-2'>{$no}</td>";
                   echo "<td class='border px-3 py-2 text-gray-600'>{$req['requested_at']}</td>";
@@ -61,9 +99,24 @@ if ($db === null) {
                       echo "<i>Data tidak valid</i>";
                   }
                   echo "</td>";
-                  
-                  echo "<td class='border px-3 py-2'>{$req['status']}</td>";
-                  echo "<td class='border px-3 py-2'>...</td>"; // Tempat untuk tombol (Selesaikan, Batal)
+
+                  echo "<td class='border px-3 py-2'>";
+                  if ($isPending) {
+                      echo "<span class='px-2 py-1 text-xs rounded bg-yellow-100 text-yellow-800'>Pending</span>";
+                  } else {
+                      echo "<span class='px-2 py-1 text-xs rounded bg-green-100 text-green-800'>Selesai</span>";
+                  }
+                  echo "</td>";
+
+                  echo "<td class='border px-3 py-2'>
+                          <form method='POST' class='flex gap-1'>";
+                  echo "  <input type='hidden' name='id' value='{$req['id']}'>";
+                  if ($isPending) {
+                      echo "  <button type='submit' name='selesai' class='px-2 py-1 text-xs bg-green-500 text-white rounded hover:bg-green-600'>✓ Selesai</button>";
+                  }
+                  echo "  <button type='submit' name='hapus' class='px-2 py-1 text-xs bg-red-500 text-white rounded hover:bg-red-600' onclick=\"return confirm('Hapus?')\">🗑</button>
+                          </form>
+                        </td>";
 
                   echo "</tr>";
                   $no++;
