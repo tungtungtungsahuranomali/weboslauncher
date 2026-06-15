@@ -14,7 +14,7 @@ try {
 
     foreach ($rows as &$r) {
         if (!empty($r['image_url']) && strpos($r['image_url'], 'http') !== 0) {
-            $r['image_url'] = 'https://ogietv.com/AHotel/' . ltrim($r['image_url'], '/');
+            $r['image_url'] = 'https://takeoff.web.id/' . ltrim($r['image_url'], '/');
         }
     }
 
