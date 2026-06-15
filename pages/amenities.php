@@ -56,6 +56,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (isset($_POST['delete_id'])) {
         $db->prepare("DELETE FROM room_amenities WHERE id=?")->execute([(int) $_POST['delete_id']]);
     }
+    if (isset($_POST['edit_id'])) {
+        $id = (int)$_POST['edit_id'];
+        $name = $_POST['name']; $name_en = $_POST['name_en'];
+        $desc = $_POST['description']; $desc_en = $_POST['description_en'];
+        $img = $_POST['image_url'] ?? '';
+        if (!empty($_FILES['image']['name'])) {
+            $fn = 'am_' . time() . '.jpg';
+            if (move_uploaded_file($_FILES['image']['tmp_name'], $uploadDir . $fn)) $img = 'uploads/amenities/' . $fn;
+        }
+        if ($img) {
+            $db->prepare("UPDATE room_amenities SET name=?, name_en=?, description=?, description_en=?, icon_path=? WHERE id=?")->execute([$name, $name_en, $desc, $desc_en, $img, $id]);
+        } else {
+            $db->prepare("UPDATE room_amenities SET name=?, name_en=?, description=?, description_en=? WHERE id=?")->execute([$name, $name_en, $desc, $desc_en, $id]);
+        }
+        echo '<script>window.location.href="admin.php?page=amenities";</script>';
+        exit;
+    }
 }
 $ams = $db->query("SELECT * FROM room_amenities ORDER BY id DESC")->fetchAll(PDO::FETCH_ASSOC);
 ?>
@@ -101,11 +118,50 @@ $ams = $db->query("SELECT * FROM room_amenities ORDER BY id DESC")->fetchAll(PDO
                         <p class="text-xs text-gray-400 italic"><?= $a['description_en'] ?></p>
                     </div>
                 </div>
-                <form method="POST" onsubmit="return confirm('Hapus?')">
-                    <input type="hidden" name="delete_id" value="<?= $a['id'] ?>">
-                    <button class="text-red-500 text-sm">Hapus</button>
-                </form>
+                <div class="flex gap-2">
+                    <button onclick='edit(<?= json_encode($a) ?>)' class="text-blue-500 text-sm">Edit</button>
+                    <form method="POST" onsubmit="return confirm('Hapus?')">
+                        <input type="hidden" name="delete_id" value="<?= $a['id'] ?>">
+                        <button class="text-red-500 text-sm">Hapus</button>
+                    </form>
+                </div>
             </div>
         <?php endforeach; ?>
     </div>
 </div>
+
+<!-- Edit Modal -->
+<div id="editModal" class="fixed inset-0 bg-black/50 hidden items-center justify-center z-50" style="display:none">
+    <div class="bg-white rounded-xl shadow-lg p-6 w-full max-w-lg mx-4 max-h-[90vh] overflow-y-auto">
+        <h3 class="font-bold text-lg mb-4">Edit Amenity</h3>
+        <form method="POST" enctype="multipart/form-data" class="space-y-3">
+            <input type="hidden" name="edit_id" id="edit-id">
+            <input name="name" id="edit-name" placeholder="Nama (ID)" class="w-full border p-2 rounded" required>
+            <input name="name_en" id="edit-name_en" placeholder="Name (EN)" class="w-full border p-2 rounded">
+            <textarea name="description" id="edit-description" placeholder="Deskripsi (ID)" class="w-full border p-2 rounded"></textarea>
+            <textarea name="description_en" id="edit-description_en" placeholder="Description (EN)" class="w-full border p-2 rounded"></textarea>
+            <div>
+                <label class="block text-sm font-medium mb-1">Ganti Gambar (kosongkan jika tidak diubah)</label>
+                <input type="file" name="image" accept="image/*" class="w-full border p-2 rounded">
+            </div>
+            <div class="flex gap-2">
+                <button type="submit" class="flex-1 bg-blue-600 text-white py-2 rounded font-semibold">Update</button>
+                <button type="button" onclick="closeEdit()" class="px-4 bg-gray-300 py-2 rounded">Batal</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+function edit(data) {
+    document.getElementById('edit-id').value = data.id;
+    document.getElementById('edit-name').value = data.name || '';
+    document.getElementById('edit-name_en').value = data.name_en || '';
+    document.getElementById('edit-description').value = data.description || '';
+    document.getElementById('edit-description_en').value = data.description_en || '';
+    document.getElementById('editModal').style.display = 'flex';
+}
+function closeEdit() {
+    document.getElementById('editModal').style.display = 'none';
+}
+</script>
