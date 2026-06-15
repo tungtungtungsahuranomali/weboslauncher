@@ -19,6 +19,12 @@ if ($db === null) {
     exit;
 }
 
+// Auto-create upload directories
+$uploadDirs = [__DIR__ . '/../uploads/notif', __DIR__ . '/../uploads/sound'];
+foreach ($uploadDirs as $dir) {
+    if (!is_dir($dir)) mkdir($dir, 0755, true);
+}
+
 function json_response(array $payload, int $code = 200): void
 {
     http_response_code($code);
@@ -119,7 +125,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if ($_POST['notificationType'] == 'image' && isset($_FILES['imageUpload'])) {
         // Upload gambar
         $image = $_FILES['imageUpload'];
-        $targetDir = 'uploads/notif/';
+        $targetDir = __DIR__ . '/../uploads/notif/';
         $targetFile = $targetDir . basename($image['name']);
 
         // Cek apakah file valid (gambar)
@@ -128,7 +134,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         if (in_array($imageFileType, $allowedTypes)) {
             if (move_uploaded_file($image['tmp_name'], $targetFile)) {
-                $imageUrl = $targetFile;  // Simpan URL gambar
+                $imageUrl = 'uploads/notif/' . basename($image['name']);
             } else {
                 echo "Error uploading image.";
                 exit;
@@ -146,14 +152,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         // Jika suara diupload, proses upload suara
         if (isset($_FILES['soundUpload'])) {
             $sound = $_FILES['soundUpload'];
-            $soundTargetDir = 'uploads/sound/';
+            $soundTargetDir = __DIR__ . '/../uploads/sound/';
             $soundTargetFile = $soundTargetDir . basename($sound['name']);
             $soundFileType = strtolower(pathinfo($soundTargetFile, PATHINFO_EXTENSION));
             $allowedSoundTypes = ['mp3', 'wav', 'ogg'];
 
             if (in_array($soundFileType, $allowedSoundTypes)) {
                 if (move_uploaded_file($sound['tmp_name'], $soundTargetFile)) {
-                    $soundUrl = $soundTargetFile;
+                    $soundUrl = 'uploads/sound/' . basename($sound['name']);
                 } else {
                     echo "Error uploading sound.";
                     exit;
