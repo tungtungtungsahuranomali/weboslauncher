@@ -110,10 +110,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $db->commit();
 
         // 4. AUTO CLEAR: Kirim perintah ADB clear ke TV di kamar ini
-        $clearResult = clearTVDataByRoom($db, $room_number);
-        $clearMsg = ($clearResult['status'] === 'success')
+        try {
+          $clearResult = clearTVDataByRoom($db, $room_number);
+        } catch (Throwable $e) {
+          $clearResult = ['status' => 'error', 'message' => 'ADB error (silent)'];
+        }
+        $clearMsg = ($clearResult['status'] ?? '') === 'success'
           ? " Data TV berhasil dibersihkan."
-          : " (TV clear: {$clearResult['message']})";
+          : "";
 
         flash('success', "✅ Kamar {$room_number} berhasil Check-Out. Data pesanan telah dibersihkan.{$clearMsg}");
 
