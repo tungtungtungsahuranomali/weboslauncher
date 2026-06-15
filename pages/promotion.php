@@ -28,6 +28,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (isset($_POST['delete_id'])) {
         $db->prepare("DELETE FROM promotion WHERE id=?")->execute([(int)$_POST['delete_id']]);
     }
+    if (isset($_POST['edit_id'])) {
+        $id = (int)$_POST['edit_id'];
+        $name = $_POST['name']; $name_en = $_POST['name_en'];
+        $desc = $_POST['description']; $desc_en = $_POST['description_en'];
+        $showDesc = (int)($_POST['show_description'] ?? 1);
+        $katId = !empty($_POST['id_kat_promotion']) ? (int)$_POST['id_kat_promotion'] : null;
+        $img = $_POST['image_url'] ?? '';
+        if (!empty($_FILES['image']['name'])) {
+            $fn = 'promo_' . time() . '.jpg';
+            if(move_uploaded_file($_FILES['image']['tmp_name'], $uploadDir . $fn)) $img = 'uploads/promotion/' . $fn;
+        }
+        if ($img) {
+            $db->prepare("UPDATE promotion SET id_kat_promotion=?, name=?, name_en=?, description=?, description_en=?, icon_path=?, show_description=? WHERE id=?")->execute([$katId, $name, $name_en, $desc, $desc_en, $img, $showDesc, $id]);
+        } else {
+            $db->prepare("UPDATE promotion SET id_kat_promotion=?, name=?, name_en=?, description=?, description_en=?, show_description=? WHERE id=?")->execute([$katId, $name, $name_en, $desc, $desc_en, $showDesc, $id]);
+        }
+        echo '<script>window.location.href="admin.php?page=promotion";</script>';
+        exit;
+    }
 }
 
 // Ambil info dengan nama kategori
@@ -84,11 +103,73 @@ $infos = $db->query("SELECT f.*, k.nm_kat_promotion FROM promotion f LEFT JOIN k
                     </span>
                 </div>
             </div>
-            <form method="POST" onsubmit="return confirm('Hapus?')">
-                <input type="hidden" name="delete_id" value="<?=$i['id']?>">
-                <button class="text-red-500 text-sm">Hapus</button>
-            </form>
+            <div class="flex gap-2">
+                <button onclick='edit(<?= json_encode($i) ?>)' class="text-blue-500 text-sm">Edit</button>
+                <form method="POST" onsubmit="return confirm('Hapus?')">
+                    <input type="hidden" name="delete_id" value="<?=$i['id']?>">
+                    <button class="text-red-500 text-sm">Hapus</button>
+                </form>
+            </div>
         </div>
         <?php endforeach; ?>
     </div>
 </div>
+
+<!-- Edit Modal -->
+<div id="editModal" class="fixed inset-0 bg-black/50 hidden items-center justify-center z-50" style="display:none">
+    <div class="bg-white rounded-xl shadow-lg p-6 w-full max-w-lg mx-4 max-h-[90vh] overflow-y-auto">
+        <h3 class="font-bold text-lg mb-4">Edit Promotion</h3>
+        <form method="POST" enctype="multipart/form-data" class="space-y-3">
+            <input type="hidden" name="edit_id" id="edit-id">
+
+            <div>
+                <label class="block text-sm font-medium mb-1">Kategori</label>
+                <select name="id_kat_promotion" id="edit-kategori" class="w-full border p-2 rounded">
+                    <option value="">-- Tanpa Kategori --</option>
+                    <?php foreach ($katList as $k): ?>
+                        <option value="<?= $k['id_kat_promotion'] ?>"><?= htmlspecialchars($k['nm_kat_promotion']) ?></option>
+                    <?php endforeach; ?>
+                </select>
+            </div>
+
+            <input name="name" id="edit-name" placeholder="Nama Promosi (ID)" class="w-full border p-2 rounded" required>
+            <input name="name_en" id="edit-name_en" placeholder="Promotion Name (EN)" class="w-full border p-2 rounded">
+            <textarea name="description" id="edit-description" placeholder="Deskripsi (ID)" class="w-full border p-2 rounded"></textarea>
+            <textarea name="description_en" id="edit-description_en" placeholder="Description (EN)" class="w-full border p-2 rounded"></textarea>
+
+            <div>
+                <label class="block text-sm font-medium mb-1">Tampilkan Keterangan di TV?</label>
+                <select name="show_description" id="edit-show_desc" class="w-full border p-2 rounded">
+                    <option value="1">Ya, Tampilkan Teks</option>
+                    <option value="0">Tidak (Hanya Gambar Full)</option>
+                </select>
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium mb-1">Ganti Gambar (kosongkan jika tidak diubah)</label>
+                <input type="file" name="image" class="w-full border p-2 rounded">
+            </div>
+
+            <div class="flex gap-2">
+                <button type="submit" class="flex-1 bg-blue-600 text-white py-2 rounded font-semibold">Update</button>
+                <button type="button" onclick="closeEdit()" class="px-4 bg-gray-300 py-2 rounded">Batal</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+function edit(data) {
+    document.getElementById('edit-id').value = data.id;
+    document.getElementById('edit-name').value = data.name || '';
+    document.getElementById('edit-name_en').value = data.name_en || '';
+    document.getElementById('edit-description').value = data.description || '';
+    document.getElementById('edit-description_en').value = data.description_en || '';
+    document.getElementById('edit-show_desc').value = data.show_description || '1';
+    document.getElementById('edit-kategori').value = data.id_kat_promotion || '';
+    document.getElementById('editModal').style.display = 'flex';
+}
+function closeEdit() {
+    document.getElementById('editModal').style.display = 'none';
+}
+</script>
