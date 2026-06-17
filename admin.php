@@ -103,7 +103,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'chang
 $success = flash('success');
 $error = flash('error');
 
-// Load sidebar config
+// Load sidebar config — sembunyikan menu sidebar per-server/klien
+// Cara pakai: edit admin.config.json di root project
+// {
+//   "hidden_sidebar": ["dining_orders", "amenity_requests", "transport_requests"]
+// }
+// Menu akan hilang dari sidebar, halaman masih bisa diakses via URL langsung.
 $hiddenSidebar = [];
 $configFile = __DIR__ . '/admin.config.json';
 if (file_exists($configFile)) {

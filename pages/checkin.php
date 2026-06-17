@@ -211,6 +211,34 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     exit;
   }
 
+  // --- Aksi Check-Out Semua ---
+  if ($action === 'check_out_all') {
+    try {
+      $allGuests = $db->query("SELECT id, room_number, guest_name FROM guest_checkin WHERE status='checked_in'")->fetchAll(PDO::FETCH_ASSOC);
+      $count = 0;
+      foreach ($allGuests as $g) {
+        $id = (int)$g['id'];
+        $room = $g['room_number'];
+        $db->beginTransaction();
+        $db->prepare("UPDATE guest_checkin SET status='checked_out', checkout_time=NOW() WHERE id=?")->execute([$id]);
+        $db->prepare("DELETE FROM hotel_orders WHERE room_number=?")->execute([$room]);
+        $db->prepare("DELETE FROM amenity_requests WHERE room_number=?")->execute([$room]);
+        $db->prepare("DELETE FROM transportation_requests WHERE room_number=?")->execute([$room]);
+        $db->commit();
+        try {
+          $clearResult = clearTVDataByRoom($db, $room);
+        } catch (Throwable $e) {}
+        $count++;
+      }
+      flash('success', "✅ Check-Out All: {$count} tamu berhasil di-check-out.");
+    } catch (Throwable $e) {
+      if ($db->inTransaction()) $db->rollBack();
+      flash('error', 'Error check-out all: ' . $e->getMessage());
+    }
+    header('Location: ?page=checkin');
+    exit;
+  }
+
   // --- Aksi Check-Out ---
   if ($action === 'check_out') {
     $checkin_id = (int) ($_POST['checkin_id'] ?? 0);
@@ -328,6 +356,12 @@ $rooms = $stmt_devices->fetchAll(PDO::FETCH_ASSOC);
   <!-- Daftar Kamar yang Sedang Check-In -->
   <div class="lg:col-span-2 bg-white shadow rounded-lg p-6">
     <h2 class="text-xl font-semibold mb-4">Status Kamar Saat Ini</h2>
+    <div class="flex gap-2 mb-3">
+      <form method="POST" onsubmit="return confirm('Yakin ingin Check-Out SEMUA tamu? Semua data pesanan akan dihapus.')">
+        <input type="hidden" name="action" value="check_out_all">
+        <button type="submit" class="bg-red-600 hover:bg-red-700 text-white text-xs px-3 py-1.5 rounded font-semibold">🚪 Check-Out All</button>
+      </form>
+    </div>
 
     <div class="overflow-x-auto max-h-[600px] overflow-y-auto">
       <table class="min-w-full border border-gray-200 text-sm">
