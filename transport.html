@@ -9,7 +9,7 @@
   * { margin:0; padding:0; box-sizing:border-box; }
   body { 
     font-family: 'Inter', sans-serif; 
-    background: url('img/latar.jpg?v=<?php echo time(); ?>') no-repeat center center fixed;
+    background: url('img/hotel3.png') no-repeat center center fixed;
     background-size: cover;
     color: white; 
     overflow: hidden; 
@@ -321,18 +321,26 @@ window.addEventListener('load', () => {
   setTimeout(() => document.getElementById('submit-btn').focus(), 300);
 });
 
-// Fetch fresh guest info
+// Fetch fresh guest info & dynamic background
 (async () => {
   const devId = localStorage.getItem(STORAGE_DEVICE_ID_KEY);
-  if (!devId) return;
+  if (devId) {
+    try {
+      const res = await fetch(`./api.php?action=getGuestInfo&device_id=${devId}&_=${Date.now()}`);
+      const d = await res.json();
+      if (d.status === 'success') {
+        document.getElementById('guest-name-display').textContent = d.data.guest_name;
+        document.getElementById('room-number-display').textContent = d.data.room_number;
+        document.getElementById('pickup-display').textContent = 'Kamar ' + d.data.room_number;
+      }
+    } catch(e) {}
+  }
+  // Dynamic background (same as main launcher)
   try {
-    const res = await fetch(`./api.php?action=getGuestInfo&device_id=${devId}&_=${Date.now()}`);
-    const d = await res.json();
-    if (d.status === 'success') {
-      document.getElementById('guest-name-display').textContent = d.data.guest_name;
-      document.getElementById('room-number-display').textContent = d.data.room_number;
-      document.getElementById('pickup-display').textContent = 'Kamar ' + d.data.room_number;
-    }
+    const bgRes = await fetch(`./api.php?action=getHomeBackground&_=${Date.now()}`);
+    const bgData = await bgRes.json();
+    const bgUrl = (bgData.status === 'success' && bgData.background_url) ? bgData.background_url : 'img/hotel3.png';
+    document.body.style.backgroundImage = `url('${bgUrl}')`;
   } catch(e) {}
 })();
 </script>
