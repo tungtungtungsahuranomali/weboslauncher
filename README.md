@@ -44,7 +44,7 @@ TakeOff adalah sistem manajemen IPTV hotel yang terdiri dari:
 | Tool | Versi Minimum |
 |------|---------------|
 | Web Server | Apache/Nginx (XAMPP/WAMP) |
-| PHP | 8.0+ |
+| PHP | 7.4+ (lihat ekstensi di bawah) |
 | Database | MySQL 5.7+ / MariaDB 10.3+ |
 
 ### Production Server
@@ -53,9 +53,26 @@ TakeOff adalah sistem manajemen IPTV hotel yang terdiri dari:
 |------|---------------|
 | OS | Ubuntu 20.04+ / Debian 11+ |
 | Web Server | Nginx + PHP-FPM |
-| PHP | 8.0+ (pdo_mysql, json, mbstring, curl) |
+| PHP | 7.4+ (pdo_mysql, json, mbstring, curl, zip, xml, gd, fileinfo, openssl) |
 | Database | MySQL 8.0+ / MariaDB 10.6+ |
 | Composer | 2.x |
+
+> **📌 Ekstensi PHP yang dibutuhkan:**
+> - `pdo_mysql` — koneksi database
+> - `json` — JSON encode/decode
+> - `mbstring` — multibyte string
+> - `curl` — WhatsApp API (Fonnte)
+> - `zip` — import Excel (PhpSpreadsheet)
+> - `xml` / `xmlreader` / `xmlwriter` — PhpSpreadsheet
+> - `gd` — upload & resize gambar
+> - `fileinfo` — validasi file upload
+> - `openssl` — HTTPS/Fonnte API
+>
+> **Instalasi semua ekstensi (Ubuntu/Debian):**
+> ```bash
+> sudo apt update
+> sudo apt install -y php php-mysql php-json php-mbstring php-curl php-zip php-xml php-gd php-fileinfo openssl
+> ```
 
 ---
 
@@ -364,7 +381,7 @@ TakeOff is a hotel IPTV management system with:
 | Tool | Minimum Version |
 |------|-----------------|
 | Web Server | Apache/Nginx (XAMPP/WAMP) |
-| PHP | 8.0+ |
+| PHP | 7.4+ (see extensions below) |
 | Database | MySQL 5.7+ / MariaDB 10.3+ |
 
 ### Production Server
@@ -373,9 +390,26 @@ TakeOff is a hotel IPTV management system with:
 |------|-----------------|
 | OS | Ubuntu 20.04+ / Debian 11+ |
 | Web Server | Nginx + PHP-FPM |
-| PHP | 8.0+ (pdo_mysql, json, mbstring, curl) |
+| PHP | 7.4+ (pdo_mysql, json, mbstring, curl, zip, xml, gd, fileinfo, openssl) |
 | Database | MySQL 8.0+ / MariaDB 10.6+ |
 | Composer | 2.x |
+
+> **📌 Required PHP extensions:**
+> - `pdo_mysql` — database connection
+> - `json` — JSON encode/decode
+> - `mbstring` — multibyte string
+> - `curl` — WhatsApp API (Fonnte)
+> - `zip` — Excel import (PhpSpreadsheet)
+> - `xml` / `xmlreader` / `xmlwriter` — PhpSpreadsheet
+> - `gd` — image upload & resize
+> - `fileinfo` — file upload validation
+> - `openssl` — HTTPS/Fonnte API
+>
+> **Install all extensions (Ubuntu/Debian):**
+> ```bash
+> sudo apt update
+> sudo apt install -y php php-mysql php-json php-mbstring php-curl php-zip php-xml php-gd php-fileinfo openssl
+> ```
 
 ---
 
