@@ -151,15 +151,15 @@
 
     <!-- Auto-filled (hidden) -->
     <div id="guest-info" class="form-group hidden">
-      <div class="form-label">👤 Tamu</div>
+      <div class="form-label">👤 Guest</div>
       <div class="form-value" id="guest-name-display">Loading...</div>
     </div>
     <div class="form-group hidden">
-      <div class="form-label">🚪 Kamar</div>
+      <div class="form-label">🚪 Room</div>
       <div class="form-value" id="room-number-display">Loading...</div>
     </div>
     <div class="form-group hidden">
-      <div class="form-label">📍 Pick-up Point</div>
+      <div class="form-label">📍 Pick-up</div>
       <div class="form-value" id="pickup-display">Loading...</div>
     </div>
 
@@ -169,7 +169,7 @@
     </div>
 
     <div class="form-group hidden">
-      <label class="form-label">👥 Jumlah Penumpang</label>
+      <label class="form-label">👥 Passengers</label>
       <div id="passenger-control" class="flex items-center gap-4 mt-1">
         <button id="pass-minus" class="w-10 h-10 rounded-full bg-white/10 text-white text-xl font-bold focus:bg-white/20">−</button>
         <span id="pass-count" class="text-2xl font-bold w-8 text-center">1</span>
@@ -178,10 +178,10 @@
     </div>
 
     <div class="form-group hidden">
-      <label class="form-label">⏰ Waktu</label>
+      <label class="form-label">⏰ Time</label>
       <div class="time-options">
-        <div id="time-now" class="time-option active" tabindex="0">🔴 Sekarang</div>
-        <div id="time-later" class="time-option" tabindex="0">⏱ Pilih Jam</div>
+        <div id="time-now" class="time-option active" tabindex="0">🔴 Now</div>
+        <div id="time-later" class="time-option" tabindex="0">⏱ Pick Time</div>
       </div>
       <div id="time-picker" class="hidden mt-2">
         <input type="time" id="time-input" value="12:00" class="form-input">
@@ -189,11 +189,11 @@
     </div>
 
     <div class="form-group hidden">
-      <label class="form-label">📝 Catatan</label>
-      <input type="text" id="notes-input" value="Dari Kamar/From Hotel Room" class="form-input">
+      <label class="form-label">📝 Notes</label>
+      <input type="text" id="notes-input" value="From Hotel Room" class="form-input">
     </div>
 
-    <button id="submit-btn" class="btn-submit">📩 Kirim Permintaan</button>
+    <button id="submit-btn" class="btn-submit">📩 Send Request</button>
   </div>
 </div>
 
@@ -202,7 +202,7 @@
   <div class="modal-box">
     <div class="modal-icon" id="modal-icon">✅</div>
     <div class="modal-title" id="modal-title">Success</div>
-    <div class="modal-desc" id="modal-desc">Permintaan terkirim!</div>
+    <div class="modal-desc" id="modal-desc">Request sent!</div>
     <button id="modal-btn" class="modal-btn">OK</button>
   </div>
 </div>
@@ -273,7 +273,7 @@ document.getElementById('modal-btn').onclick = hideModal;
 document.getElementById('submit-btn').onclick = async () => {
   const btn = document.getElementById('submit-btn');
   btn.disabled = true;
-  btn.textContent = '⏳ Mengirim...';
+  btn.textContent = '⏳ Sending...';
   try {
     const res = await fetch('./api.php?action=submitTransportRequest', {
       method: 'POST',
@@ -285,20 +285,20 @@ document.getElementById('submit-btn').onclick = async () => {
         destination: 'By Request',
         num_passengers: passengers,
         preferred_time: selectedTime,
-        notes: document.getElementById('notes-input').value || 'Dari Kamar/From Hotel Room'
+        notes: document.getElementById('notes-input').value || 'From Hotel Room'
       })
     });
     const d = await res.json();
     if (d.status === 'success') {
-      showModal('✅', 'Berhasil', 'Permintaan transportasi terkirim!');
+      showModal('✅', 'Berhasil', 'Transportation request sent!');
     } else {
-      showModal('❌', 'Gagal', d.message || 'Terjadi kesalahan');
+      showModal('❌', 'Gagal', d.message || 'An error occurred');
     }
   } catch (e) {
     showModal('❌', 'System Error', e.message);
   }
   btn.disabled = false;
-  btn.textContent = '📩 Kirim Permintaan';
+  btn.textContent = '📩 Send Request';
 };
 
 // Keyboard nav (TV remote)
