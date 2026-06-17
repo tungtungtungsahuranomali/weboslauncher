@@ -9,7 +9,7 @@
 
 # Logs
 *.log
-wa_log.txt
+/logs/
 
 # IDE
 /.vscode/

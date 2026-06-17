@@ -8,7 +8,7 @@
  * Kirim pesan WhatsApp via Fonnte
  * @param PDO $db Database connection
  * @param string $message Pesan yang akan dikirim
- * @param string $type Tipe notifikasi: 'dining', 'amenities', atau 'general' (default)
+ * @param string $type Tipe notifikasi: 'dining', 'amenities', 'transportation', atau 'general' (default)
  * @return bool True jika berhasil terkirim
  */
 function sendWhatsAppNotification(PDO $db, string $message, string $type = 'general'): bool
@@ -23,6 +23,20 @@ function sendWhatsAppNotification(PDO $db, string $message, string $type = 'gene
         $settings = [];
         while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
             $settings[$row['setting_key']] = $row['setting_value'];
+        }
+
+        // Auto-create missing settings with empty defaults
+        $defaults = [
+            'wa_recipient_transportation' => '',
+            'wa_recipient_number' => ''
+        ];
+        foreach ($defaults as $key => $val) {
+            if (!isset($settings[$key])) {
+                try {
+                    $db->prepare("INSERT IGNORE INTO system_settings (setting_key, setting_value) VALUES (?, ?)")->execute([$key, $val]);
+                } catch (Exception $e) {}
+                $settings[$key] = $val;
+            }
         }
 
         $enabled = ($settings['wa_gateway_enabled'] ?? '0') === '1';
@@ -85,10 +99,12 @@ function sendWhatsAppNotification(PDO $db, string $message, string $type = 'gene
             $httpCode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
             curl_close($curl);
 
-            // Log response
-            $logFile = __DIR__ . '/wa_log.txt';
+            // Log ke direktori logs/ (auto-create)
+            $logDir = __DIR__ . '/logs';
+            if (!is_dir($logDir)) @mkdir($logDir, 0755, true);
+            $logFile = $logDir . '/wa.log';
             $logEntry = date('Y-m-d H:i:s') . " | HTTP {$httpCode} | Type: {$type} | Target: {$number} | Response: {$response}\n";
-            file_put_contents($logFile, $logEntry, FILE_APPEND);
+            @file_put_contents($logFile, $logEntry, FILE_APPEND);
 
             if ($httpCode !== 200) {
                 $allSent = false;
@@ -97,8 +113,10 @@ function sendWhatsAppNotification(PDO $db, string $message, string $type = 'gene
 
         return $allSent;
     } catch (Exception $e) {
-        $logFile = __DIR__ . '/wa_log.txt';
-        file_put_contents($logFile, date('Y-m-d H:i:s') . " | ERROR: " . $e->getMessage() . "\n", FILE_APPEND);
+        // Silent fail — jangan sampai ngerusak fitur utama
+        $logDir = __DIR__ . '/logs';
+        if (!is_dir($logDir)) @mkdir($logDir, 0755, true);
+        @file_put_contents($logDir . '/wa.log', date('Y-m-d H:i:s') . " | ERROR: " . $e->getMessage() . "\n", FILE_APPEND);
         return false;
     }
 }
