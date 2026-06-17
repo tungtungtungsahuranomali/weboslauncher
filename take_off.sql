@@ -946,7 +946,7 @@ CREATE TABLE `system_apps` (
   `android_package` varchar(255) DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `app_key` (`app_key`)
-) ENGINE=InnoDB AUTO_INCREMENT=31 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=32 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -968,7 +968,8 @@ INSERT INTO `system_apps` VALUES
 (23,'clear_data_guest','Clear Data Guest',NULL,'uploads/icons/icon_1769246765.png',1,6,'clear.data'),
 (25,'tv_local','TV Channel',NULL,'uploads/icons/icon_1772552379.png',1,5,'com.mmaplay.iptv'),
 (29,'promotion','promotion','promotion','uploads/icons/icon_1773353782.png',1,3,NULL),
-(30,'general_info','General Information',NULL,'uploads/icons/icon_1773563755.png',1,0,'internal.general_info');
+(30,'general_info','General Information',NULL,'uploads/icons/icon_1773563755.png',1,0,'internal.general_info'),
+(31,'transport','Transportasi','Transportation','img/tv.png',1,12,NULL);
 /*!40000 ALTER TABLE `system_apps` ENABLE KEYS */;
 UNLOCK TABLES;
 COMMIT;
@@ -1057,7 +1058,7 @@ CREATE TABLE `transportation_requests` (
   `status` enum('Pending','Completed','Cancelled') DEFAULT 'Pending',
   `requested_at` timestamp NULL DEFAULT current_timestamp(),
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_uca1400_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_uca1400_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -1081,4 +1082,4 @@ SET AUTOCOMMIT=@OLD_AUTOCOMMIT;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*M!100616 SET NOTE_VERBOSITY=@OLD_NOTE_VERBOSITY */;
 
--- Dump completed on 2026-06-17 13:39:18
+-- Dump completed on 2026-06-17 15:32:30
