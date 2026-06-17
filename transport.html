@@ -150,26 +150,25 @@
     <div class="form-title">🚐 Transportation</div>
 
     <!-- Auto-filled (hidden) -->
-    <div id="guest-info" class="form-group">
+    <div id="guest-info" class="form-group hidden">
       <div class="form-label">👤 Tamu</div>
       <div class="form-value" id="guest-name-display">Loading...</div>
     </div>
-    <div class="form-group">
+    <div class="form-group hidden">
       <div class="form-label">🚪 Kamar</div>
       <div class="form-value" id="room-number-display">Loading...</div>
     </div>
-    <div class="form-group">
+    <div class="form-group hidden">
       <div class="form-label">📍 Pick-up Point</div>
       <div class="form-value" id="pickup-display">Loading...</div>
     </div>
 
-    <!-- Editable fields -->
-    <div class="form-group">
-      <label class="form-label">🚏 Destination / Tujuan</label>
+    <div class="form-group hidden">
+      <label class="form-label">🚏 Destination</label>
       <div class="form-value" id="destination-display">By Request</div>
     </div>
 
-    <div class="form-group">
+    <div class="form-group hidden">
       <label class="form-label">👥 Jumlah Penumpang</label>
       <div id="passenger-control" class="flex items-center gap-4 mt-1">
         <button id="pass-minus" class="w-10 h-10 rounded-full bg-white/10 text-white text-xl font-bold focus:bg-white/20">−</button>
@@ -178,7 +177,7 @@
       </div>
     </div>
 
-    <div class="form-group">
+    <div class="form-group hidden">
       <label class="form-label">⏰ Waktu</label>
       <div class="time-options">
         <div id="time-now" class="time-option active" tabindex="0">🔴 Sekarang</div>
@@ -189,7 +188,7 @@
       </div>
     </div>
 
-    <div class="form-group">
+    <div class="form-group hidden">
       <label class="form-label">📝 Catatan</label>
       <input type="text" id="notes-input" value="Dari Kamar/From Hotel Room" class="form-input">
     </div>
@@ -302,7 +301,7 @@ document.getElementById('submit-btn').onclick = async () => {
   btn.textContent = '📩 Kirim Permintaan';
 };
 
-// Keyboard nav
+// Keyboard nav (TV remote)
 document.addEventListener('keydown', (e) => {
   if (isModalOpen) {
     if (e.key === 'Enter' || e.key === 'Escape') { e.preventDefault(); hideModal(); }
@@ -311,6 +310,15 @@ document.addEventListener('keydown', (e) => {
   if (e.key === 'Backspace' || e.key === 'Escape') {
     e.preventDefault(); location.href = 'index.php';
   }
+  // Arrow keys focus submit button, Enter to submit
+  if (e.key === 'ArrowUp' || e.key === 'ArrowDown' || e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
+    e.preventDefault();
+    document.getElementById('submit-btn').focus();
+  }
+});
+// Auto-focus submit on load
+window.addEventListener('load', () => {
+  setTimeout(() => document.getElementById('submit-btn').focus(), 300);
 });
 
 // Fetch fresh guest info
