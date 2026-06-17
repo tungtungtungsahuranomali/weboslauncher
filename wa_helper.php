@@ -17,7 +17,7 @@ function sendWhatsAppNotification(PDO $db, string $message, string $type = 'gene
         // Ambil semua settings WA
         $stmt = $db->prepare("SELECT setting_key, setting_value FROM system_settings WHERE setting_key IN (
             'wa_gateway_enabled', 'wa_fonnte_token', 
-            'wa_recipient_number', 'wa_recipient_dining', 'wa_recipient_amenities'
+            'wa_recipient_number', 'wa_recipient_dining', 'wa_recipient_amenities', 'wa_recipient_transportation'
         )");
         $stmt->execute();
         $settings = [];
@@ -38,6 +38,8 @@ function sendWhatsAppNotification(PDO $db, string $message, string $type = 'gene
             $target = $settings['wa_recipient_dining'] ?? '';
         } elseif ($type === 'amenities') {
             $target = $settings['wa_recipient_amenities'] ?? '';
+        } elseif ($type === 'transportation') {
+            $target = $settings['wa_recipient_transportation'] ?? '';
         }
 
         // Fallback ke penerima umum jika khusus kosong

@@ -49,6 +49,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $waToken = trim($_POST['wa_fonnte_token'] ?? '');
         $waRecipientDining = str_replace(' ', '', trim($_POST['wa_recipient_dining'] ?? ''));
         $waRecipientAmenities = str_replace(' ', '', trim($_POST['wa_recipient_amenities'] ?? ''));
+        $waRecipientTransport = str_replace(' ', '', trim($_POST['wa_recipient_transportation'] ?? ''));
 
         try {
             $stmt = $db->prepare("INSERT INTO system_settings (setting_key, setting_value) 
@@ -57,6 +58,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $stmt->execute(['wa_fonnte_token', $waToken]);
             $stmt->execute(['wa_recipient_dining', $waRecipientDining]);
             $stmt->execute(['wa_recipient_amenities', $waRecipientAmenities]);
+            $stmt->execute(['wa_recipient_transportation', $waRecipientTransport]);
 
             $success = '✅ Pengaturan WhatsApp Gateway berhasil disimpan.';
         } catch (Exception $e) {
@@ -98,8 +100,9 @@ $waEnabled = '0';
 $waToken = '';
 $waRecipientDining = '';
 $waRecipientAmenities = '';
+$waRecipientTransport = '';
 try {
-    $stmt = $db->query("SELECT setting_key, setting_value FROM system_settings WHERE setting_key IN ('wa_gateway_enabled', 'wa_fonnte_token', 'wa_recipient_dining', 'wa_recipient_amenities')");
+    $stmt = $db->query("SELECT setting_key, setting_value FROM system_settings WHERE setting_key IN ('wa_gateway_enabled', 'wa_fonnte_token', 'wa_recipient_dining', 'wa_recipient_amenities', 'wa_recipient_transportation')");
     while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
         if ($row['setting_key'] === 'wa_gateway_enabled')
             $waEnabled = $row['setting_value'];
@@ -109,6 +112,8 @@ try {
             $waRecipientDining = $row['setting_value'];
         if ($row['setting_key'] === 'wa_recipient_amenities')
             $waRecipientAmenities = $row['setting_value'];
+        if ($row['setting_key'] === 'wa_recipient_transportation')
+            $waRecipientTransport = $row['setting_value'];
     }
 } catch (Exception $e) {
 }
@@ -278,6 +283,16 @@ try {
                         value="<?= htmlspecialchars($waRecipientAmenities) ?>" placeholder="6281176543788"
                         class="w-full border rounded px-3 py-2 focus:ring-2 focus:ring-green-400 text-sm font-mono">
                     <p class="text-xs text-gray-400 mt-1">Nomor penerima permintaan amenities. Pisahkan dengan koma
+                        untuk banyak nomor.</p>
+                </div>
+
+                <!-- Penerima Transportation -->
+                <div>
+                    <label class="block text-sm font-medium mb-1">🚐 Penerima Notifikasi Transportasi</label>
+                    <input name="wa_recipient_transportation" type="text"
+                        value="<?= htmlspecialchars($waRecipientTransport) ?>" placeholder="6281176543788"
+                        class="w-full border rounded px-3 py-2 focus:ring-2 focus:ring-green-400 text-sm font-mono">
+                    <p class="text-xs text-gray-400 mt-1">Nomor penerima permintaan transportasi. Pisahkan dengan koma
                         untuk banyak nomor.</p>
                 </div>
 

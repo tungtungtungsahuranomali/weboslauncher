@@ -212,6 +212,7 @@ try {
                 $db->prepare("UPDATE guest_checkin SET status = 'checked_out', checkout_time = NOW() WHERE room_number = ? AND status = 'checked_in'")->execute([$roomNo]);
                 $db->prepare("DELETE FROM hotel_orders WHERE room_number = ?")->execute([$roomNo]);
                 $db->prepare("DELETE FROM amenity_requests WHERE room_number = ?")->execute([$roomNo]);
+                $db->prepare("DELETE FROM transportation_requests WHERE room_number = ?")->execute([$roomNo]);
                 $db->commit();
 
                 // AUTO CLEAR: Kirim perintah ADB clear ke TV
@@ -756,6 +757,28 @@ try {
             }
             catch (Exception $e) { /* WA notification optional */
             }
+            break;
+
+        case 'submitTransportRequest':
+            $input = json_decode(file_get_contents('php://input'), true);
+            $guest_name = trim($input['guest_name'] ?? 'Guest');
+            $room_number = trim($input['room_number'] ?? '-');
+            $pickup_point = trim($input['pickup_point'] ?? 'Kamar ' . $room_number);
+            $destination = trim($input['destination'] ?? 'By Request');
+            $num_passengers = (int)($input['num_passengers'] ?? 1);
+            $preferred_time = trim($input['preferred_time'] ?? 'NOW');
+            $notes = trim($input['notes'] ?? 'Dari Kamar/From Hotel Room');
+
+            $stmt = $db->prepare("INSERT INTO transportation_requests (room_number, guest_name, pickup_point, destination, num_passengers, preferred_time, notes, status, requested_at) VALUES (?, ?, ?, ?, ?, ?, ?, 'Pending', NOW())");
+            $stmt->execute([$room_number, $guest_name, $pickup_point, $destination, $num_passengers, $preferred_time, $notes]);
+
+            try {
+                $timeLabel = ($preferred_time === 'NOW') ? 'Sekarang' : $preferred_time;
+                $waMsg = "\xF0\x9F\x9A\x90 *Permintaan Transportasi Baru*\n\n\xF0\x9F\x91\xA4 Tamu: {$guest_name}\n\xF0\x9F\x9A\xAA Kamar: {$room_number}\n\xF0\x9F\x93\x8D Pick-up: {$pickup_point}\n\xF0\x9F\x9A\x8F Tujuan: {$destination}\n\xF0\x9F\x91\xA5 Penumpang: {$num_passengers}\n\xE2\x8F\xB0 Waktu: {$timeLabel}\n\xF0\x9F\x93\x9D Catatan: {$notes}";
+                sendWhatsAppNotification($db, $waMsg, 'transportation');
+            } catch (Exception $e) { /* WA optional */ }
+
+            echo json_encode(['status' => 'success', 'message' => 'Permintaan transportasi terkirim.']);
             break;
 
         case 'getSplash':

@@ -228,9 +228,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $stmt_dining = $db->prepare("DELETE FROM hotel_orders WHERE room_number = ?");
         $stmt_dining->execute([$room_number]);
 
-        // 3. Hapus data permintaan amenities dari kamar tsb
+        // 3. Hapus data permintaan amenities & transportasi dari kamar tsb
         $stmt_amenity = $db->prepare("DELETE FROM amenity_requests WHERE room_number = ?");
         $stmt_amenity->execute([$room_number]);
+        $stmt_transport = $db->prepare("DELETE FROM transportation_requests WHERE room_number = ?");
+        $stmt_transport->execute([$room_number]);
 
         $db->commit();
 

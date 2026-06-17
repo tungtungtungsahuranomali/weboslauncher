@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Transportation</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { 
+    font-family: 'Inter', sans-serif; 
+    background: url('img/latar.jpg?v=<?php echo time(); ?>') no-repeat center center fixed;
+    background-size: cover;
+    color: white; 
+    overflow: hidden; 
+    height: 100vh; 
+    width: 100vw; 
+  }
+  .layout { 
+    display: flex; 
+    align-items: center;
+    justify-content: center;
+    height: 100vh; 
+    width: 100vw; 
+    background: rgba(0, 0, 0, 0.5);
+  }
+  .form-card {
+    background: rgba(0, 0, 0, 0.75);
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 24px;
+    padding: 40px;
+    width: 90%;
+    max-width: 480px;
+  }
+  .form-title {
+    font-size: 2rem;
+    font-weight: 800;
+    color: #facc15;
+    text-align: center;
+    margin-bottom: 24px;
+  }
+  .form-group {
+    margin-bottom: 16px;
+  }
+  .form-label {
+    display: block;
+    font-size: 0.85rem;
+    color: #d1d5db;
+    margin-bottom: 4px;
+  }
+  .form-value {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: white;
+    padding: 8px 0;
+  }
+  .form-select, .form-input {
+    width: 100%;
+    padding: 12px 16px;
+    border-radius: 12px;
+    border: 1px solid rgba(255,255,255,0.2);
+    background: rgba(255,255,255,0.1);
+    color: white;
+    font-size: 1rem;
+    outline: none;
+  }
+  .form-select:focus, .form-input:focus {
+    border-color: #facc15;
+    box-shadow: 0 0 0 2px rgba(250,204,21,0.2);
+  }
+  .form-select option { background: #1f2937; color: white; }
+  .btn-submit {
+    width: 100%;
+    padding: 14px;
+    border: none;
+    border-radius: 12px;
+    background: #facc15;
+    color: #111;
+    font-size: 1.1rem;
+    font-weight: 700;
+    cursor: pointer;
+    margin-top: 8px;
+    transition: transform 0.15s, background 0.15s;
+  }
+  .btn-submit:focus { transform: scale(1.03); background: #eab308; }
+  .btn-submit:active { transform: scale(0.97); }
+
+  .time-options {
+    display: flex;
+    gap: 12px;
+    margin-top: 4px;
+  }
+  .time-option {
+    flex: 1;
+    padding: 10px;
+    border-radius: 10px;
+    border: 2px solid rgba(255,255,255,0.2);
+    background: rgba(255,255,255,0.05);
+    color: white;
+    text-align: center;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .time-option.active {
+    border-color: #facc15;
+    background: rgba(250,204,21,0.2);
+  }
+  .time-option:focus { border-color: #facc15; transform: scale(1.02); }
+
+  .modal-overlay {
+    position: fixed; inset: 0; z-index: 999;
+    display: none;
+    align-items: center; justify-content: center;
+    background: rgba(0,0,0,0.7);
+  }
+  .modal-overlay.show { display: flex; }
+  .modal-box {
+    background: #1f2937;
+    border-radius: 20px;
+    padding: 40px;
+    text-align: center;
+    max-width: 360px;
+  }
+  .modal-icon { font-size: 3rem; margin-bottom: 12px; }
+  .modal-title { font-size: 1.3rem; font-weight: 700; margin-bottom: 8px; }
+  .modal-desc { color: #9ca3af; margin-bottom: 20px; }
+  .modal-btn {
+    padding: 10px 36px;
+    border-radius: 999px;
+    border: none;
+    background: #facc15;
+    color: #111;
+    font-weight: 600;
+    font-size: 1rem;
+    cursor: pointer;
+  }
+  .modal-btn:focus { outline: 2px solid white; }
+
+  @media(max-width:640px) {
+    .form-card { padding: 24px; }
+    .form-title { font-size: 1.5rem; }
+  }
+</style>
+</head>
+<body>
+<div class="layout">
+  <div class="form-card">
+    <div class="form-title">🚐 Transportation</div>
+
+    <!-- Auto-filled (hidden) -->
+    <div id="guest-info" class="form-group">
+      <div class="form-label">👤 Tamu</div>
+      <div class="form-value" id="guest-name-display">Loading...</div>
+    </div>
+    <div class="form-group">
+      <div class="form-label">🚪 Kamar</div>
+      <div class="form-value" id="room-number-display">Loading...</div>
+    </div>
+    <div class="form-group">
+      <div class="form-label">📍 Pick-up Point</div>
+      <div class="form-value" id="pickup-display">Loading...</div>
+    </div>
+
+    <!-- Editable fields -->
+    <div class="form-group">
+      <label class="form-label">🚏 Destination / Tujuan</label>
+      <div class="form-value" id="destination-display">By Request</div>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">👥 Jumlah Penumpang</label>
+      <div id="passenger-control" class="flex items-center gap-4 mt-1">
+        <button id="pass-minus" class="w-10 h-10 rounded-full bg-white/10 text-white text-xl font-bold focus:bg-white/20">−</button>
+        <span id="pass-count" class="text-2xl font-bold w-8 text-center">1</span>
+        <button id="pass-plus" class="w-10 h-10 rounded-full bg-white/10 text-white text-xl font-bold focus:bg-white/20">+</button>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">⏰ Waktu</label>
+      <div class="time-options">
+        <div id="time-now" class="time-option active" tabindex="0">🔴 Sekarang</div>
+        <div id="time-later" class="time-option" tabindex="0">⏱ Pilih Jam</div>
+      </div>
+      <div id="time-picker" class="hidden mt-2">
+        <input type="time" id="time-input" value="12:00" class="form-input">
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">📝 Catatan</label>
+      <input type="text" id="notes-input" value="Dari Kamar/From Hotel Room" class="form-input">
+    </div>
+
+    <button id="submit-btn" class="btn-submit">📩 Kirim Permintaan</button>
+  </div>
+</div>
+
+<!-- Modal -->
+<div id="modal" class="modal-overlay">
+  <div class="modal-box">
+    <div class="modal-icon" id="modal-icon">✅</div>
+    <div class="modal-title" id="modal-title">Success</div>
+    <div class="modal-desc" id="modal-desc">Permintaan terkirim!</div>
+    <button id="modal-btn" class="modal-btn">OK</button>
+  </div>
+</div>
+
+<script>
+const STORAGE_DEVICE_ID_KEY = 'myDeviceID_v8_final';
+const STORAGE_GUEST_NAME_KEY = 'guest_name_v8_final';
+const STORAGE_ROOM_NUM_KEY = 'room_number_v8_final';
+
+let passengers = 1;
+let selectedTime = 'NOW';
+let isModalOpen = false;
+
+// Guest info from localStorage
+const guestName = localStorage.getItem(STORAGE_GUEST_NAME_KEY) || 'Guest';
+const roomNumber = localStorage.getItem(STORAGE_ROOM_NUM_KEY) || localStorage.getItem(STORAGE_DEVICE_ID_KEY) || '-';
+document.getElementById('guest-name-display').textContent = guestName;
+document.getElementById('room-number-display').textContent = roomNumber;
+document.getElementById('pickup-display').textContent = 'Kamar ' + roomNumber;
+document.getElementById('destination-display').textContent = 'By Request';
+
+// Passenger controls
+document.getElementById('pass-minus').onclick = () => {
+  if (passengers > 1) { passengers--; updatePassengers(); }
+};
+document.getElementById('pass-plus').onclick = () => {
+  if (passengers < 8) { passengers++; updatePassengers(); }
+};
+function updatePassengers() {
+  document.getElementById('pass-count').textContent = passengers;
+}
+
+// Time options
+document.getElementById('time-now').onclick = () => {
+  selectedTime = 'NOW';
+  document.querySelectorAll('.time-option').forEach(el => el.classList.remove('active'));
+  document.getElementById('time-now').classList.add('active');
+  document.getElementById('time-picker').classList.add('hidden');
+};
+document.getElementById('time-later').onclick = () => {
+  selectedTime = document.getElementById('time-input').value;
+  document.querySelectorAll('.time-option').forEach(el => el.classList.remove('active'));
+  document.getElementById('time-later').classList.add('active');
+  document.getElementById('time-picker').classList.remove('hidden');
+};
+document.getElementById('time-input').onchange = () => {
+  if (document.getElementById('time-later').classList.contains('active')) {
+    selectedTime = document.getElementById('time-input').value;
+  }
+};
+
+// Modal
+function showModal(icon, title, desc) {
+  isModalOpen = true;
+  document.getElementById('modal-icon').textContent = icon;
+  document.getElementById('modal-title').textContent = title;
+  document.getElementById('modal-desc').textContent = desc;
+  document.getElementById('modal').classList.add('show');
+  setTimeout(() => document.getElementById('modal-btn').focus(), 100);
+}
+function hideModal() {
+  isModalOpen = false;
+  document.getElementById('modal').classList.remove('show');
+}
+document.getElementById('modal-btn').onclick = hideModal;
+
+// Submit
+document.getElementById('submit-btn').onclick = async () => {
+  const btn = document.getElementById('submit-btn');
+  btn.disabled = true;
+  btn.textContent = '⏳ Mengirim...';
+  try {
+    const res = await fetch('./api.php?action=submitTransportRequest', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        guest_name: guestName,
+        room_number: roomNumber,
+        pickup_point: 'Kamar ' + roomNumber,
+        destination: 'By Request',
+        num_passengers: passengers,
+        preferred_time: selectedTime,
+        notes: document.getElementById('notes-input').value || 'Dari Kamar/From Hotel Room'
+      })
+    });
+    const d = await res.json();
+    if (d.status === 'success') {
+      showModal('✅', 'Berhasil', 'Permintaan transportasi terkirim!');
+    } else {
+      showModal('❌', 'Gagal', d.message || 'Terjadi kesalahan');
+    }
+  } catch (e) {
+    showModal('❌', 'System Error', e.message);
+  }
+  btn.disabled = false;
+  btn.textContent = '📩 Kirim Permintaan';
+};
+
+// Keyboard nav
+document.addEventListener('keydown', (e) => {
+  if (isModalOpen) {
+    if (e.key === 'Enter' || e.key === 'Escape') { e.preventDefault(); hideModal(); }
+    return;
+  }
+  if (e.key === 'Backspace' || e.key === 'Escape') {
+    e.preventDefault(); location.href = 'index.php';
+  }
+});
+
+// Fetch fresh guest info
+(async () => {
+  const devId = localStorage.getItem(STORAGE_DEVICE_ID_KEY);
+  if (!devId) return;
+  try {
+    const res = await fetch(`./api.php?action=getGuestInfo&device_id=${devId}&_=${Date.now()}`);
+    const d = await res.json();
+    if (d.status === 'success') {
+      document.getElementById('guest-name-display').textContent = d.data.guest_name;
+      document.getElementById('room-number-display').textContent = d.data.room_number;
+      document.getElementById('pickup-display').textContent = 'Kamar ' + d.data.room_number;
+    }
+  } catch(e) {}
+})();
+</script>
+</body>
+</html>

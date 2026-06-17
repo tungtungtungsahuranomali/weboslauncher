@@ -473,7 +473,8 @@ include 'config.php';
       facilities: 'facilities.html?v=6',
       amenities: 'amenities.html?v=14',
       dining: 'dining.html?v=9',
-      promotion: 'promotion.html?v=7'
+      promotion: 'promotion.html?v=7',
+      transport: 'transport.html'
     };
 
     const WEB_URLS = {
