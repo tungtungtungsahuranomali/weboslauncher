@@ -301,10 +301,10 @@ $rooms = $stmt_devices->fetchAll(PDO::FETCH_ASSOC);
     <!-- Import Excel -->
     <div class="mt-6 border-t pt-4">
       <button type="button" onclick="toggleExcelImport()" class="w-full text-left text-sm font-semibold text-gray-600 hover:text-gray-900 flex items-center gap-2">
-        <span id="import-toggle-icon">▶</span> Import Excel (PowerMe)
+        <span id="import-toggle-icon">▼</span> Import Excel (PowerMe)
       </button>
 
-      <div id="import-section" class="hidden mt-3 space-y-3">
+      <div id="import-section" class="mt-3 space-y-3">
         <form id="import-form" method="POST" enctype="multipart/form-data" class="space-y-3">
           <input type="hidden" name="action" value="import_excel">
           <select name="format" class="w-full border rounded px-3 py-2 text-sm">
