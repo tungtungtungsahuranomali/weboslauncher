@@ -1,5 +1,5 @@
 # Dependencies
-/vendor/
+# /vendor/
 
 # Uploads (dynamic content)
 /uploads/
