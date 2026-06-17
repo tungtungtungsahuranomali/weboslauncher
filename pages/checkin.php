@@ -74,6 +74,17 @@ if ($db === null) {
   return;
 }
 
+// Cek ekstensi yang diperlukan untuk import Excel
+$missingExts = [];
+if (!class_exists('ZipArchive')) $missingExts[] = 'php-zip (ZipArchive)';
+if (count($missingExts) > 0): ?>
+  <div class="bg-red-100 border border-red-300 text-red-700 px-4 py-3 rounded mb-4">
+    <strong>⚠️ Import Excel tidak tersedia.</strong> Ekstensi PHP berikut tidak terinstall:
+    <?= implode(', ', $missingExts) ?>.
+    Jalankan <code class="bg-red-200 px-1 rounded">sudo apt install -y <?= implode(' ', $missingExts) ?></code> lalu restart PHP.
+  </div>
+<?php endif;
+
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   $action = $_POST['action'] ?? '';
