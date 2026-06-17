@@ -9,6 +9,7 @@ else {
 }
 
 define("ADB_PORT", "5555");
+define("ADB_TIMEOUT", "3"); // seconds per command
 
 $CLEAR_APPS = [
     "com.google.android.youtube",

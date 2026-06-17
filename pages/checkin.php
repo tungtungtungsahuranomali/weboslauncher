@@ -130,17 +130,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $stmt = $db->prepare("INSERT INTO guest_checkin (room_number, guest_name, checkin_time, status) VALUES (?, ?, NOW(), 'checked_in')");
         $stmt->execute([$g['room'], $g['name']]);
 
-        // Start launcher
+        // Start launcher (with ADB timeout via api/adb_helper.php)
         $stmtDev = $db->prepare("SELECT id, device_ip FROM managed_devices WHERE room_number = ? AND device_ip IS NOT NULL AND device_ip != ''");
         $stmtDev->execute([$g['room']]);
         $devices = $stmtDev->fetchAll(PDO::FETCH_ASSOC);
         foreach ($devices as $dev) {
           $db->prepare("UPDATE managed_devices SET pending_start_launcher = 1 WHERE id = ?")->execute([(int)$dev['id']]);
           if ($dev['device_ip']) {
-            adbConnect($dev['device_ip']);
-            adbStartLauncher($dev['device_ip']);
-            adbDisconnect($dev['device_ip']);
-            $db->prepare("UPDATE managed_devices SET pending_start_launcher = 0 WHERE id = ?")->execute([(int)$dev['id']]);
+            try {
+              @adbConnect($dev['device_ip']);
+              @adbStartLauncher($dev['device_ip']);
+              @adbDisconnect($dev['device_ip']);
+              $db->prepare("UPDATE managed_devices SET pending_start_launcher = 0 WHERE id = ?")->execute([(int)$dev['id']]);
+            } catch (Throwable $adbErr) {
+              // ADB silent fail
+            }
           }
         }
 
@@ -190,9 +194,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
           // Coba ping sekali saat check-in; jika hidup, langsung kirim perintah start launcher dan clear pending
           if ($ip && is_device_reachable($ip)) {
-            adbConnect($ip);
-            adbStartLauncher($ip);
-            adbDisconnect($ip);
+            @adbConnect($ip);
+            @adbStartLauncher($ip);
+            @adbDisconnect($ip);
             $db->prepare("UPDATE managed_devices SET pending_start_launcher = 0 WHERE id = ?")->execute([$id]);
           }
         }
