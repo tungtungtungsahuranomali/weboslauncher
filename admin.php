@@ -104,7 +104,7 @@ $success = flash('success');
 $error = flash('error');
 
 // Load sidebar config — sembunyikan menu sidebar per-server/klien
-// Cara pakai: edit admin.config.json di root project
+// Cara pakai: copy admin.config.sample.json → admin.config.json, edit array hidden_sidebar
 // {
 //   "hidden_sidebar": ["dining_orders", "amenity_requests", "transport_requests"]
 // }
