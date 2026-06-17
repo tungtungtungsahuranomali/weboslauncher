@@ -163,9 +163,11 @@
       <div class="form-value" id="pickup-display">Loading...</div>
     </div>
 
-    <div class="form-group hidden">
+    <div class="form-group">
       <label class="form-label">🚏 Destination</label>
-      <div class="form-value" id="destination-display">By Request</div>
+      <select id="destination-select" class="form-select">
+        <option value="">Loading destinations...</option>
+      </select>
     </div>
 
     <div class="form-group hidden">
@@ -222,7 +224,8 @@ const roomNumber = localStorage.getItem(STORAGE_ROOM_NUM_KEY) || localStorage.ge
 document.getElementById('guest-name-display').textContent = guestName;
 document.getElementById('room-number-display').textContent = roomNumber;
 document.getElementById('pickup-display').textContent = 'Kamar ' + roomNumber;
-document.getElementById('destination-display').textContent = 'By Request';
+// Set default destination
+document.getElementById('destination-select').value = 'By Request';
 
 // Passenger controls
 document.getElementById('pass-minus').onclick = () => {
@@ -282,7 +285,7 @@ document.getElementById('submit-btn').onclick = async () => {
         guest_name: guestName,
         room_number: roomNumber,
         pickup_point: 'Kamar ' + roomNumber,
-        destination: 'By Request',
+        destination: document.getElementById('destination-select').value || 'By Request',
         num_passengers: passengers,
         preferred_time: selectedTime,
         notes: document.getElementById('notes-input').value || 'From Hotel Room'
@@ -310,8 +313,13 @@ document.addEventListener('keydown', (e) => {
   if (e.key === 'Backspace' || e.key === 'Escape') {
     e.preventDefault(); location.href = 'index.php';
   }
-  // Arrow keys focus submit button, Enter to submit
-  if (e.key === 'ArrowUp' || e.key === 'ArrowDown' || e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
+  // Arrow keys focus submit, or navigate dropdown if focused
+  if (e.key === 'ArrowUp' || e.key === 'ArrowDown') {
+    const sel = document.getElementById('destination-select');
+    if (document.activeElement === sel) return; // let native dropdown handle arrows
+    e.preventDefault();
+    sel.focus();
+  } else if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
     e.preventDefault();
     document.getElementById('submit-btn').focus();
   }
@@ -335,6 +343,22 @@ window.addEventListener('load', () => {
       }
     } catch(e) {}
   }
+  // Fetch destinations
+  try {
+    const destRes = await fetch(`./api.php?action=getTransportDestinations&_=${Date.now()}`);
+    const destData = await destRes.json();
+    if (destData.status === 'success' && destData.data) {
+      const sel = document.getElementById('destination-select');
+      sel.innerHTML = '';
+      destData.data.forEach(function(d) {
+        const opt = document.createElement('option');
+        opt.value = d.name;
+        opt.textContent = d.name;
+        sel.appendChild(opt);
+      });
+    }
+  } catch(e) {}
+
   // Dynamic background (same as main launcher)
   try {
     const bgRes = await fetch(`./api.php?action=getHomeBackground&_=${Date.now()}`);

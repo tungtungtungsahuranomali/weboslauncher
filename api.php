@@ -781,6 +781,16 @@ try {
             echo json_encode(['status' => 'success', 'message' => 'Permintaan transportasi terkirim.']);
             break;
 
+        case 'getTransportDestinations':
+            try {
+                $stmt = $db->query("SELECT id, name FROM transport_destinations ORDER BY sort_order ASC");
+                $dests = $stmt->fetchAll(PDO::FETCH_ASSOC);
+                echo json_encode(['status' => 'success', 'data' => $dests]);
+            } catch (Exception $e) {
+                echo json_encode(['status' => 'error', 'message' => $e->getMessage()]);
+            }
+            break;
+
         case 'getSplash':
             $stmt = $db->prepare("SELECT setting_value FROM global_settings WHERE setting_key='splash_enabled'");
             $stmt->execute();

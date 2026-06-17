@@ -27,6 +27,48 @@ try {
     // table already exists
 }
 
+// Auto-create transport_destinations table + defaults
+try {
+    $db->exec("CREATE TABLE IF NOT EXISTS transport_destinations (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        name VARCHAR(255) NOT NULL,
+        sort_order INT DEFAULT 0
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
+    // Insert defaults if empty
+    $check = $db->query("SELECT COUNT(*) FROM transport_destinations")->fetchColumn();
+    if ($check == 0) {
+        $db->exec("INSERT INTO transport_destinations (name, sort_order) VALUES
+            ('By Request', 0), ('Lobby', 1), ('Restaurant', 2),
+            ('Beach Club', 3), ('Pool', 4), ('Spa', 5)");
+    }
+} catch (Exception $e) {}
+
+// Handle add/delete destination
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    if (isset($_POST['add_destination'])) {
+        $name = trim($_POST['dest_name'] ?? '');
+        if ($name !== '') {
+            $max = $db->query("SELECT MAX(sort_order) FROM transport_destinations")->fetchColumn();
+            $db->prepare("INSERT INTO transport_destinations (name, sort_order) VALUES (?, ?)")->execute([$name, ($max ?? 0) + 1]);
+        }
+        header('Location: ?page=transport_requests');
+        exit;
+    }
+    if (isset($_POST['delete_destination'])) {
+        $id = (int)($_POST['delete_destination'] ?? 0);
+        if ($id > 0) {
+            // Prevent deleting "By Request" (id=1)
+            $name = $db->prepare("SELECT name FROM transport_destinations WHERE id=?")->execute([$id]);
+            // Actually just let them delete anything, "By Request" can be re-added
+            $db->prepare("DELETE FROM transport_destinations WHERE id=?")->execute([$id]);
+        }
+        header('Location: ?page=transport_requests');
+        exit;
+    }
+}
+
+$destinations = $db->query("SELECT * FROM transport_destinations ORDER BY sort_order ASC")->fetchAll(PDO::FETCH_ASSOC);
+
 // Auto-create system_apps entry for transport menu
 try {
     $stmt = $db->prepare("SELECT COUNT(*) FROM system_apps WHERE app_key='transport'");
@@ -150,4 +192,34 @@ $totalCols = 9 - count($hiddenCols);
       </tbody>
     </table>
   </div>
+</div>
+
+<!-- Manage Transport Destinations -->
+<div class="bg-white rounded-lg shadow p-6 mt-6">
+  <div class="flex justify-between items-center mb-3">
+    <h2 class="text-lg font-semibold text-gray-700">📍 Atur Tujuan Transportasi</h2>
+    <button type="button" onclick="document.getElementById('dest-form').classList.toggle('hidden')" class="px-3 py-1.5 text-sm bg-blue-500 text-white rounded hover:bg-blue-600">➕ Tambah</button>
+  </div>
+
+  <form id="dest-form" method="POST" class="hidden flex gap-2 mb-4">
+    <input type="hidden" name="add_destination" value="1">
+    <input type="text" name="dest_name" required placeholder="Nama tujuan..." class="flex-1 border rounded px-3 py-2 text-sm">
+    <button type="submit" class="px-4 py-2 bg-green-500 text-white text-sm rounded hover:bg-green-600">Simpan</button>
+  </form>
+
+  <div class="flex flex-wrap gap-2">
+    <?php foreach ($destinations as $d): ?>
+      <div class="flex items-center gap-2 px-3 py-1.5 rounded-full text-sm 
+        <?= $d['id'] == 1 ? 'bg-yellow-100 text-yellow-800' : 'bg-gray-100 text-gray-700' ?>">
+        <span><?= htmlspecialchars($d['name']) ?></span>
+        <?php if ($d['id'] != 1): ?>
+          <form method="POST" onsubmit="return confirm('Hapus tujuan ini?')" style="display:inline">
+            <input type="hidden" name="delete_destination" value="<?= $d['id'] ?>">
+            <button type="submit" class="text-red-400 hover:text-red-600 text-xs font-bold">✕</button>
+          </form>
+        <?php endif; ?>
+      </div>
+    <?php endforeach; ?>
+  </div>
+  <p class="text-xs text-gray-400 mt-2">Tujuan akan muncul di dropdown TV Launcher. "By Request" tidak bisa dihapus.</p>
 </div>

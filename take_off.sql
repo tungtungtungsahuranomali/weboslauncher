@@ -428,13 +428,13 @@ INSERT INTO `guest_checkin` VALUES
 (5,'101','Rizal','2026-03-10 16:38:17','2026-03-10 22:33:26','checked_out'),
 (6,'102','Rizal','2026-03-11 01:09:27','2026-03-13 01:22:16','checked_out'),
 (7,'102','Rizal','2026-03-13 01:39:05','2026-03-13 01:39:12','checked_out'),
-(33,'101','Ian Quek, Mr.','2026-06-17 12:55:30','2026-06-17 12:56:56','checked_out'),
-(34,'106','Kenneth Robert Suthren, Mr.','2026-06-17 12:55:33','2026-06-17 12:57:10','checked_out'),
-(35,'107','Bobby Pratama, Mr.','2026-06-17 12:55:33','2026-06-17 12:57:13','checked_out'),
-(36,'101','Ian Quek, Mr.','2026-06-17 12:57:48','2026-06-17 12:57:59','checked_out'),
-(37,'106','Kenneth Robert Suthren, Mr.','2026-06-17 12:57:51',NULL,'checked_in'),
-(38,'107','Bobby Pratama, Mr.','2026-06-17 12:57:51',NULL,'checked_in'),
-(39,'101','Ian Quek, Mr.','2026-06-17 12:58:21',NULL,'checked_in');
+(33,'101','Ian Quek, Mr.','2026-06-17 12:55:30','2026-06-17 16:57:42','checked_out'),
+(34,'106','Kenneth Robert Suthren, Mr.','2026-06-17 12:55:33','2026-06-17 16:57:45','checked_out'),
+(35,'107','Bobby Pratama, Mr.','2026-06-17 12:55:33','2026-06-17 16:57:45','checked_out'),
+(36,'101','Ian Quek, Mr.','2026-06-17 12:57:48','2026-06-17 16:57:45','checked_out'),
+(37,'106','Kenneth Robert Suthren, Mr.','2026-06-17 12:57:51','2026-06-17 16:57:48','checked_out'),
+(38,'107','Bobby Pratama, Mr.','2026-06-17 12:57:51','2026-06-17 16:57:48','checked_out'),
+(39,'101','Ian Quek, Mr.','2026-06-17 12:58:21','2026-06-17 16:57:48','checked_out');
 /*!40000 ALTER TABLE `guest_checkin` ENABLE KEYS */;
 UNLOCK TABLES;
 COMMIT;
@@ -1033,8 +1033,44 @@ INSERT INTO `system_settings` VALUES
 ('scheduled_clear_enabled','1','2026-02-28 02:34:20'),
 ('scheduled_clear_time','02:15','2026-02-28 02:34:20'),
 ('wa_fonnte_token','3xpJ3q4kvKAehog6k14V','2026-02-28 02:32:34'),
-('wa_gateway_enabled','1','2026-02-28 02:32:34');
+('wa_gateway_enabled','1','2026-02-28 02:32:34'),
+('wa_recipient_number','','2026-06-17 17:32:15'),
+('wa_recipient_transportation','','2026-06-17 17:32:15');
 /*!40000 ALTER TABLE `system_settings` ENABLE KEYS */;
+UNLOCK TABLES;
+COMMIT;
+SET AUTOCOMMIT=@OLD_AUTOCOMMIT;
+
+--
+-- Table structure for table `transport_destinations`
+--
+
+DROP TABLE IF EXISTS `transport_destinations`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
+CREATE TABLE `transport_destinations` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `name` varchar(255) NOT NULL,
+  `sort_order` int(11) DEFAULT 0,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_uca1400_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `transport_destinations`
+--
+
+SET @OLD_AUTOCOMMIT=@@AUTOCOMMIT, @@AUTOCOMMIT=0;
+LOCK TABLES `transport_destinations` WRITE;
+/*!40000 ALTER TABLE `transport_destinations` DISABLE KEYS */;
+INSERT INTO `transport_destinations` VALUES
+(1,'By Request',0),
+(2,'Lobby',1),
+(3,'Restaurant',2),
+(4,'Beach Club',3),
+(5,'Pool',4),
+(6,'Spa',5);
+/*!40000 ALTER TABLE `transport_destinations` ENABLE KEYS */;
 UNLOCK TABLES;
 COMMIT;
 SET AUTOCOMMIT=@OLD_AUTOCOMMIT;
@@ -1058,7 +1094,7 @@ CREATE TABLE `transportation_requests` (
   `status` enum('Pending','Completed','Cancelled') DEFAULT 'Pending',
   `requested_at` timestamp NULL DEFAULT current_timestamp(),
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_uca1400_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_uca1400_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -1071,7 +1107,9 @@ LOCK TABLES `transportation_requests` WRITE;
 INSERT INTO `transportation_requests` VALUES
 (2,'999','Guest','Kamar 999','By Request',1,'NOW','Dari Kamar/From Hotel Room','Pending','2026-06-17 07:38:53'),
 (3,'999','Guest','Kamar 999','By Request',1,'NOW','From Hotel Room','Pending','2026-06-17 07:56:15'),
-(4,'999','Guest','Kamar 999','By Request',1,'NOW','From Hotel Room','Pending','2026-06-17 07:57:15');
+(4,'999','Guest','Kamar 999','By Request',1,'NOW','From Hotel Room','Pending','2026-06-17 07:57:15'),
+(5,'999','Guest','Kamar 999','By Request',1,'NOW','From Hotel Room','Pending','2026-06-17 07:57:16'),
+(6,'101','Test','Kamar 101','Beach Club',2,'NOW','Test','Pending','2026-06-17 09:32:15');
 /*!40000 ALTER TABLE `transportation_requests` ENABLE KEYS */;
 UNLOCK TABLES;
 COMMIT;
@@ -1086,4 +1124,4 @@ SET AUTOCOMMIT=@OLD_AUTOCOMMIT;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*M!100616 SET NOTE_VERBOSITY=@OLD_NOTE_VERBOSITY */;
 
--- Dump completed on 2026-06-17 15:57:16
+-- Dump completed on 2026-06-17 17:32:58
