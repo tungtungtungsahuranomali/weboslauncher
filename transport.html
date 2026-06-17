@@ -290,7 +290,7 @@ document.getElementById('submit-btn').onclick = async () => {
     });
     const d = await res.json();
     if (d.status === 'success') {
-      showModal('✅', 'Berhasil', 'Transportation request sent!');
+      showModal('✅', 'Success', 'Transportation request sent!');
     } else {
       showModal('❌', 'Gagal', d.message || 'An error occurred');
     }
