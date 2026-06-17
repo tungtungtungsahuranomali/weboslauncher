@@ -22,6 +22,7 @@ Thumbs.db
 
 # Config with secrets (keep sample)
 /config.php
+/admin.config.json
 
 # Environment
 .env

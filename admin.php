@@ -103,6 +103,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'chang
 $success = flash('success');
 $error = flash('error');
 
+// Load sidebar config
+$hiddenSidebar = [];
+$configFile = __DIR__ . '/admin.config.json';
+if (file_exists($configFile)) {
+    $config = json_decode(file_get_contents($configFile), true);
+    $hiddenSidebar = $config['hidden_sidebar'] ?? [];
+}
+
 $admin_user = $_SESSION['admin_display_name'] ?? $_SESSION['admin_username'] ?? 'Administrator';
 ?>
 <!DOCTYPE html>
@@ -678,6 +686,19 @@ $admin_user = $_SESSION['admin_display_name'] ?? $_SESSION['admin_username'] ?? 
             });
         </script>
     <?php endif; ?>
+
+<script>
+var hiddenSidebar = <?= json_encode($hiddenSidebar) ?>;
+if (hiddenSidebar.length) {
+  document.querySelectorAll('.sidebar-link').forEach(function(el) {
+    hiddenSidebar.forEach(function(key) {
+      if (el.getAttribute('href') && el.getAttribute('href').indexOf('page=' + key) !== -1) {
+        el.style.display = 'none';
+      }
+    });
+  });
+}
+</script>
 
 </body>
 
