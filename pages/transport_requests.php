@@ -27,6 +27,17 @@ try {
     // table already exists
 }
 
+// Auto-create system_apps entry for transport menu
+try {
+    $stmt = $db->prepare("SELECT COUNT(*) FROM system_apps WHERE app_key='transport'");
+    $stmt->execute();
+    if ($stmt->fetchColumn() == 0) {
+        $db->prepare("INSERT INTO system_apps (app_key, app_name, app_name_en, icon_path, is_visible, sort_order) VALUES ('transport', 'Transportasi', 'Transportation', 'img/tv.png', 1, 999)")->execute();
+    }
+} catch (Exception $e) {
+    // table might not exist yet
+}
+
 // Handle POST actions
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $id = (int)($_POST['id'] ?? 0);

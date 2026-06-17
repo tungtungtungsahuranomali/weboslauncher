@@ -1058,7 +1058,7 @@ CREATE TABLE `transportation_requests` (
   `status` enum('Pending','Completed','Cancelled') DEFAULT 'Pending',
   `requested_at` timestamp NULL DEFAULT current_timestamp(),
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_uca1400_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_uca1400_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -1068,6 +1068,8 @@ CREATE TABLE `transportation_requests` (
 SET @OLD_AUTOCOMMIT=@@AUTOCOMMIT, @@AUTOCOMMIT=0;
 LOCK TABLES `transportation_requests` WRITE;
 /*!40000 ALTER TABLE `transportation_requests` DISABLE KEYS */;
+INSERT INTO `transportation_requests` VALUES
+(2,'999','Guest','Kamar 999','By Request',1,'NOW','Dari Kamar/From Hotel Room','Pending','2026-06-17 07:38:53');
 /*!40000 ALTER TABLE `transportation_requests` ENABLE KEYS */;
 UNLOCK TABLES;
 COMMIT;
@@ -1082,4 +1084,4 @@ SET AUTOCOMMIT=@OLD_AUTOCOMMIT;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*M!100616 SET NOTE_VERBOSITY=@OLD_NOTE_VERBOSITY */;
 
--- Dump completed on 2026-06-17 15:32:30
+-- Dump completed on 2026-06-17 15:45:32
