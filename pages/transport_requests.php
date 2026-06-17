@@ -57,6 +57,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 
 $statusFilter = $_GET['status'] ?? '';
+
+// Kolom yang disembunyikan dari tabel (sesuai kebutuhan klien)
+$hiddenCols = ['pnp'];
+$totalCols = 9 - count($hiddenCols);
 ?>
 <h1 class="text-2xl font-bold text-yellow-500 mb-6">🚐 Permintaan Transportasi</h1>
 
@@ -80,7 +84,9 @@ $statusFilter = $_GET['status'] ?? '';
           <th class="border px-3 py-2 text-left">Kamar</th>
           <th class="border px-3 py-2 text-left">Tamu</th>
           <th class="border px-3 py-2 text-left">Tujuan</th>
+          <?php if (!in_array('pnp', $hiddenCols)): ?>
           <th class="border px-3 py-2 text-center">Pnp</th>
+          <?php endif; ?>
           <th class="border px-3 py-2 text-left">Waktu</th>
           <th class="border px-3 py-2 text-left">Status</th>
           <th class="border px-3 py-2 text-left">Aksi</th>
@@ -101,7 +107,7 @@ $statusFilter = $_GET['status'] ?? '';
             $requests = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
           if (!$requests) {
-              echo "<tr><td colspan='9' class='text-center text-gray-500 py-4'>Belum ada permintaan transportasi.</td></tr>";
+              echo "<tr><td colspan='{$totalCols}' class='text-center text-gray-500 py-4'>Belum ada permintaan transportasi.</td></tr>";
           } else {
               $no = 1;
               foreach ($requests as $req) {
@@ -113,7 +119,9 @@ $statusFilter = $_GET['status'] ?? '';
                   echo "<td class='border px-3 py-2 font-semibold'>{$req['room_number']}</td>";
                   echo "<td class='border px-3 py-2'>{$req['guest_name']}</td>";
                   echo "<td class='border px-3 py-2'>" . htmlspecialchars($req['destination']) . "</td>";
-                  echo "<td class='border px-3 py-2 text-center'>{$req['num_passengers']}</td>";
+                  if (!in_array('pnp', $hiddenCols)) {
+                      echo "<td class='border px-3 py-2 text-center'>{$req['num_passengers']}</td>";
+                  }
                   echo "<td class='border px-3 py-2'>{$timeLabel}</td>";
                   echo "<td class='border px-3 py-2'>";
                   if ($isPending) {
@@ -136,7 +144,7 @@ $statusFilter = $_GET['status'] ?? '';
               }
           }
         } catch (Exception $e) {
-            echo "<tr><td colspan='9' class='text-center text-red-500 py-4'>Kesalahan DB: {$e->getMessage()}</td></tr>";
+            echo "<tr><td colspan='{$totalCols}' class='text-center text-red-500 py-4'>Kesalahan DB: {$e->getMessage()}</td></tr>";
         }
         ?>
       </tbody>
