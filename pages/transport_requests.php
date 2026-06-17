@@ -9,6 +9,24 @@ if ($db === null) {
     return;
 }
 
+// Auto-create table if not exists
+try {
+    $db->exec("CREATE TABLE IF NOT EXISTS transportation_requests (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        room_number VARCHAR(20) NOT NULL,
+        guest_name VARCHAR(100) NOT NULL,
+        pickup_point VARCHAR(255) DEFAULT '',
+        destination VARCHAR(255) DEFAULT 'By Request',
+        num_passengers INT DEFAULT 1,
+        preferred_time VARCHAR(50) DEFAULT 'NOW',
+        notes TEXT DEFAULT NULL,
+        status ENUM('Pending','Completed','Cancelled') DEFAULT 'Pending',
+        requested_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
+} catch (Exception $e) {
+    // table already exists
+}
+
 // Handle POST actions
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $id = (int)($_POST['id'] ?? 0);
