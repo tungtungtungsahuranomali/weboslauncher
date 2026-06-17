@@ -6,6 +6,49 @@ require_once __DIR__ . '/../config.php';
 require_once __DIR__ . '/../functions.php';
 require_once __DIR__ . '/../checkout_clear_helper.php';
 require_once __DIR__ . '/../api/adb_helper.php';
+require_once __DIR__ . '/../vendor/autoload.php';
+
+use PhpOffice\PhpSpreadsheet\IOFactory;
+
+// ======================================================
+// Format definitions untuk import Excel
+// ======================================================
+$importFormats = [
+    'powerme' => [
+        'name'       => 'PowerMe',
+        'header_row' => 3,
+        'data_row'   => 5,
+        'cols'       => ['room' => 'B', 'name' => 'C', 'arrival' => null, 'depart' => null],
+        'date_fmt'   => 'd-M-y'
+    ]
+];
+
+function parseExcelFile(string $filepath, array $format): array
+{
+    $spreadsheet = IOFactory::load($filepath);
+    $sheet = $spreadsheet->getActiveSheet();
+    $headerRow = $format['header_row'];
+    $dataRow   = $format['data_row'];
+    $cols      = $format['cols'];
+
+    $guests = [];
+    $highestRow = $sheet->getHighestRow();
+
+    for ($r = $dataRow; $r <= $highestRow; $r++) {
+        $room = trim((string) $sheet->getCell($cols['room'] . $r)->getCalculatedValue());
+        $name = trim((string) $sheet->getCell($cols['name'] . $r)->getCalculatedValue());
+
+        if ($room === '' || $name === '') continue;
+        if (!is_numeric($room)) continue; // skip non-numeric room numbers
+
+        $guests[] = [
+            'room' => $room,
+            'name' => $name,
+        ];
+    }
+
+    return $guests;
+}
 
 /**
  * Cek apakah IP perangkat bisa di-ping (artinya perangkat hidup/online).
@@ -34,6 +77,73 @@ if ($db === null) {
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   $action = $_POST['action'] ?? '';
+
+  // --- Aksi Import Excel ---
+  if ($action === 'import_excel') {
+    $formatKey = $_POST['format'] ?? '';
+    if (!isset($importFormats[$formatKey])) {
+      flash('error', 'Format tidak dikenal.');
+      header('Location: ?page=checkin');
+      exit;
+    }
+
+    if (!isset($_FILES['excel_file']) || $_FILES['excel_file']['error'] !== UPLOAD_ERR_OK) {
+      flash('error', 'Gagal upload file.');
+      header('Location: ?page=checkin');
+      exit;
+    }
+
+    $tmpPath = $_FILES['excel_file']['tmp_name'];
+
+    try {
+      $guests = parseExcelFile($tmpPath, $importFormats[$formatKey]);
+
+      if (empty($guests)) {
+        flash('error', 'Tidak ada data tamu yang ditemukan di file.');
+        header('Location: ?page=checkin');
+        exit;
+      }
+
+      $imported = 0;
+      $skipped = 0;
+
+      foreach ($guests as $g) {
+        // Check if already checked-in
+        $stmt = $db->prepare("SELECT COUNT(*) FROM guest_checkin WHERE room_number = ? AND status = 'checked_in'");
+        $stmt->execute([$g['room']]);
+        if ($stmt->fetchColumn() > 0) {
+          $skipped++;
+          continue;
+        }
+
+        $stmt = $db->prepare("INSERT INTO guest_checkin (room_number, guest_name, checkin_time, status) VALUES (?, ?, NOW(), 'checked_in')");
+        $stmt->execute([$g['room'], $g['name']]);
+
+        // Start launcher
+        $stmtDev = $db->prepare("SELECT id, device_ip FROM managed_devices WHERE room_number = ? AND device_ip IS NOT NULL AND device_ip != ''");
+        $stmtDev->execute([$g['room']]);
+        $devices = $stmtDev->fetchAll(PDO::FETCH_ASSOC);
+        foreach ($devices as $dev) {
+          $db->prepare("UPDATE managed_devices SET pending_start_launcher = 1 WHERE id = ?")->execute([(int)$dev['id']]);
+          if ($dev['device_ip']) {
+            adbConnect($dev['device_ip']);
+            adbStartLauncher($dev['device_ip']);
+            adbDisconnect($dev['device_ip']);
+            $db->prepare("UPDATE managed_devices SET pending_start_launcher = 0 WHERE id = ?")->execute([(int)$dev['id']]);
+          }
+        }
+
+        $imported++;
+      }
+
+      flash('success', "✅ Import selesai. {$imported} tamu berhasil check-in, {$skipped} kamar sudah terisi.");
+    } catch (Exception $e) {
+      flash('error', 'Gagal parse file: ' . $e->getMessage());
+    }
+
+    header('Location: ?page=checkin');
+    exit;
+  }
 
   // --- Aksi Check-In ---
   if ($action === 'check_in') {
@@ -172,6 +282,30 @@ $rooms = $stmt_devices->fetchAll(PDO::FETCH_ASSOC);
         Check-In Tamu
       </button>
     </form>
+
+    <!-- Import Excel -->
+    <div class="mt-6 border-t pt-4">
+      <button type="button" onclick="toggleExcelImport()" class="w-full text-left text-sm font-semibold text-gray-600 hover:text-gray-900 flex items-center gap-2">
+        <span id="import-toggle-icon">▶</span> Import Excel (PowerMe)
+      </button>
+
+      <div id="import-section" class="hidden mt-3 space-y-3">
+        <form id="import-form" method="POST" enctype="multipart/form-data" class="space-y-3">
+          <input type="hidden" name="action" value="import_excel">
+          <select name="format" class="w-full border rounded px-3 py-2 text-sm">
+            <?php foreach ($importFormats as $key => $fmt): ?>
+              <option value="<?= $key ?>"><?= htmlspecialchars($fmt['name']) ?></option>
+            <?php endforeach; ?>
+          </select>
+          <input type="file" name="excel_file" accept=".xls,.xlsx" required
+                 class="w-full border rounded px-3 py-2 text-sm">
+          <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 rounded font-semibold text-sm">
+            📥 Upload & Import
+          </button>
+        </form>
+        <div id="import-preview" class="hidden text-xs text-gray-600 bg-gray-50 rounded p-2 max-h-40 overflow-auto"></div>
+      </div>
+    </div>
   </div>
 
   <!-- Daftar Kamar yang Sedang Check-In -->
@@ -231,3 +365,25 @@ $rooms = $stmt_devices->fetchAll(PDO::FETCH_ASSOC);
     </div>
   </div>
 </div>
+
+<script>
+function toggleExcelImport() {
+  const section = document.getElementById('import-section');
+  const icon = document.getElementById('import-toggle-icon');
+  const isHidden = section.classList.contains('hidden');
+  section.classList.toggle('hidden');
+  icon.textContent = isHidden ? '▼' : '▶';
+}
+
+document.getElementById('import-form')?.addEventListener('submit', function(e) {
+  const file = this.querySelector('input[type="file"]');
+  if (!file.files.length) {
+    e.preventDefault();
+    alert('Pilih file Excel terlebih dahulu.');
+    return;
+  }
+  const btn = this.querySelector('button[type="submit"]');
+  btn.disabled = true;
+  btn.textContent = '⏳ Importing...';
+});
+</script>
