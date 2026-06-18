@@ -58,21 +58,30 @@ function getManagedDevices(PDO $db): array
  * Enqueue popup untuk target devices.
  * title boleh null/empty.
  */
-function enqueuePopupNotifications(PDO $db, array $targets, ?string $title, string $body, int $ttlMinutes = 1440, ?string $imageUrl = null, ?string $soundUrl = null): int
+function enqueuePopupNotifications(PDO $db, array $targets, ?string $title, string $body, int $ttlMinutes = 1440, ?string $imageUrl = null, ?string $soundUrl = null, ?string $scheduledAt = null): int
 {
-    // Modifikasi query untuk memasukkan image_url dan sound_url
+    // Modifikasi query untuk memasukkan image_url, sound_url, dan scheduled_at
     $insert = $db->prepare("
         INSERT INTO popup_notifications
-            (device_id, room_number, title, body, status, created_at, expires_at, image_url, sound_url)
+            (device_id, room_number, title, body, status, created_at, expires_at, image_url, sound_url, scheduled_at)
         VALUES
-            (:device_id, :room_number, :title, :body, 'pending', NOW(), DATE_ADD(NOW(), INTERVAL :ttl MINUTE), :image_url, :sound_url)
+            (:device_id, :room_number, :title, :body, 'pending', NOW(), :expires_at, :image_url, :sound_url, :scheduled_at)
     ");
 
     $count = 0;
+
     foreach ($targets as $t) {
         $deviceId = trim((string) ($t['device_id'] ?? ''));
         if ($deviceId === '') {
             continue; // skip device yang belum punya device_id
+        }
+
+        // Hitung expires_at: jika scheduled, expired = scheduled + TTL; jika langsung = NOW + TTL
+        $expiresAt = null;
+        if (!empty($scheduledAt)) {
+            $expiresAt = date('Y-m-d H:i:s', strtotime($scheduledAt . " + {$ttlMinutes} minutes"));
+        } else {
+            $expiresAt = date('Y-m-d H:i:s', strtotime("+{$ttlMinutes} minutes"));
         }
 
         // Eksekusi query dengan URL gambar dan suara jika ada
@@ -81,9 +90,10 @@ function enqueuePopupNotifications(PDO $db, array $targets, ?string $title, stri
             ':room_number' => (string) ($t['room_number'] ?? ''),
             ':title' => ($title !== null && $title !== '') ? $title : null,
             ':body' => $body,
-            ':ttl' => $ttlMinutes,
+            ':expires_at' => $expiresAt,
             ':image_url' => $imageUrl,  // Menyimpan URL gambar jika ada
             ':sound_url' => $soundUrl,  // Menyimpan URL suara jika ada
+            ':scheduled_at' => !empty($scheduledAt) ? $scheduledAt : null,
         ]);
         $count++;
     }
@@ -209,6 +219,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     try {
         $db->beginTransaction();
 
+        // Parse scheduled_at
+        $scheduledAt = null;
+        if (isset($_POST['schedule_notification']) && !empty($_POST['scheduled_at'])) {
+            $scheduledAt = trim($_POST['scheduled_at']);
+        }
+
         $queued = enqueuePopupNotifications(
             $db,
             $targets,
@@ -216,7 +232,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $body,
             $ttl,
             $imageUrl,  // URL gambar (jika ada)
-            $soundUrl   // URL suara (jika ada) 
+            $soundUrl,  // URL suara (jika ada) 
+            $scheduledAt
         );
 
         $db->commit();
@@ -516,6 +533,15 @@ $devices = getManagedDevices($db);
             <button type="submit" class="notif-btn notif-btn-primary">🔔 Kirim Popup</button>
         </div>
 
+        <div class="mt-4 pt-4 border-t border-gray-200">
+            <label class="flex items-center gap-2 text-sm text-gray-600 cursor-pointer">
+                <input type="checkbox" id="schedule-check" name="schedule_notification" value="1"> 📅 Jadwalkan
+            </label>
+            <div id="schedule-datetime" class="hidden mt-2">
+                <input type="datetime-local" name="scheduled_at" class="notif-input" style="width:auto;">
+            </div>
+        </div>
+
         <div id="alertMessage" class="notif-alert"></div>
     </form>
 </div>
@@ -528,6 +554,15 @@ $devices = getManagedDevices($db);
         const deselectAllBtn = document.getElementById('deselectAllBtn');
         const searchInput = document.getElementById('roomSearch');
         const roomsList = document.getElementById('roomsList');
+        const scheduleCheck = document.getElementById('schedule-check');
+        const scheduleDatetime = document.getElementById('schedule-datetime');
+
+        // Toggle schedule datetime picker
+        if (scheduleCheck) {
+            scheduleCheck.addEventListener('change', function() {
+                scheduleDatetime.classList.toggle('hidden', !this.checked);
+            });
+        }
 
         // Event listener untuk memilih tipe notifikasi (text/image)
         document.querySelectorAll('input[name="notificationType"]').forEach(input => {

@@ -828,11 +828,12 @@ CREATE TABLE `popup_notifications` (
   `created_at` datetime NOT NULL DEFAULT current_timestamp(),
   `delivered_at` datetime DEFAULT NULL,
   `expires_at` datetime DEFAULT NULL,
+  `scheduled_at` datetime DEFAULT NULL,
   `sound_url` varchar(255) DEFAULT NULL,
   `image_url` varchar(255) DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `idx_device_status_created` (`device_id`,`status`,`created_at`)
-) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -843,8 +844,8 @@ SET @OLD_AUTOCOMMIT=@@AUTOCOMMIT, @@AUTOCOMMIT=0;
 LOCK TABLES `popup_notifications` WRITE;
 /*!40000 ALTER TABLE `popup_notifications` DISABLE KEYS */;
 INSERT INTO `popup_notifications` VALUES
-(2,'TV-RXBLOO','TV-RXBLOO','TV-RXBLOO','TV-RXBLOO','delivered','2026-06-15 13:34:36','2026-06-15 13:34:37','2026-06-16 13:34:36',NULL,NULL),
-(3,'TV-Q3DWO6','999','TV-Q3DWO6','TV-Q3DWO6','delivered','2026-06-17 13:17:21','2026-06-17 13:17:21','2026-06-18 13:17:21',NULL,NULL);
+(2,'TV-RXBLOO','TV-RXBLOO','TV-RXBLOO','TV-RXBLOO','delivered','2026-06-15 13:34:36','2026-06-15 13:34:37','2026-06-16 13:34:36',NULL,NULL,NULL),
+(3,'TV-Q3DWO6','999','TV-Q3DWO6','TV-Q3DWO6','delivered','2026-06-17 13:17:21','2026-06-17 13:17:21','2026-06-18 13:17:21',NULL,NULL,NULL);
 /*!40000 ALTER TABLE `popup_notifications` ENABLE KEYS */;
 UNLOCK TABLES;
 COMMIT;
@@ -1094,7 +1095,7 @@ CREATE TABLE `transportation_requests` (
   `status` enum('Pending','Completed','Cancelled') DEFAULT 'Pending',
   `requested_at` timestamp NULL DEFAULT current_timestamp(),
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_uca1400_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_uca1400_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -1109,7 +1110,8 @@ INSERT INTO `transportation_requests` VALUES
 (3,'999','Guest','Kamar 999','By Request',1,'NOW','From Hotel Room','Pending','2026-06-17 07:56:15'),
 (4,'999','Guest','Kamar 999','By Request',1,'NOW','From Hotel Room','Pending','2026-06-17 07:57:15'),
 (5,'999','Guest','Kamar 999','By Request',1,'NOW','From Hotel Room','Pending','2026-06-17 07:57:16'),
-(6,'101','Test','Kamar 101','Beach Club',2,'NOW','Test','Pending','2026-06-17 09:32:15');
+(6,'101','Test','Kamar 101','Beach Club',2,'NOW','Test','Pending','2026-06-17 09:32:15'),
+(7,'101','ScheduleTest','Kamar 101','Test',1,'NOW','Testing schedule feature','Pending','2026-06-18 08:38:18');
 /*!40000 ALTER TABLE `transportation_requests` ENABLE KEYS */;
 UNLOCK TABLES;
 COMMIT;
@@ -1124,4 +1126,4 @@ SET AUTOCOMMIT=@OLD_AUTOCOMMIT;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*M!100616 SET NOTE_VERBOSITY=@OLD_NOTE_VERBOSITY */;
 
--- Dump completed on 2026-06-17 17:32:58
+-- Dump completed on 2026-06-18 16:38:26

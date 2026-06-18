@@ -264,6 +264,7 @@ try {
                 WHERE device_id = ?
                 AND status = 'pending'
                 AND (expires_at IS NULL OR expires_at > NOW())
+                AND (scheduled_at IS NULL OR scheduled_at <= NOW())
                 ORDER BY created_at ASC
                 LIMIT 1
                 FOR UPDATE
