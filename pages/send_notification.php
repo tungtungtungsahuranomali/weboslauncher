@@ -506,6 +506,15 @@ $devices = getManagedDevices($db);
             </div>
         </div>
 
+        <div class="mt-4">
+            <label class="flex items-center gap-2 text-sm text-gray-600 cursor-pointer">
+                <input type="checkbox" id="schedule-check" name="schedule_notification" value="1"> 📅 Jadwalkan
+            </label>
+            <div id="schedule-datetime" class="hidden mt-2">
+                <input type="datetime-local" name="scheduled_at" class="notif-input" style="width:auto;">
+            </div>
+        </div>
+
         <div class="rooms-toolbar">
             <input class="notif-input" id="roomSearch" placeholder="🔍 Cari kamar / nama device..."
                 style="flex:1;min-width:240px;" />
@@ -540,15 +549,6 @@ $devices = getManagedDevices($db);
 
         <div style="margin-top:16px; display:flex; justify-content:flex-end;">
             <button type="submit" class="notif-btn notif-btn-primary">🔔 Kirim Popup</button>
-        </div>
-
-        <div class="mt-4 pt-4 border-t border-gray-200">
-            <label class="flex items-center gap-2 text-sm text-gray-600 cursor-pointer">
-                <input type="checkbox" id="schedule-check" name="schedule_notification" value="1"> 📅 Jadwalkan
-            </label>
-            <div id="schedule-datetime" class="hidden mt-2">
-                <input type="datetime-local" name="scheduled_at" class="notif-input" style="width:auto;">
-            </div>
         </div>
 
         <div id="alertMessage" class="notif-alert"></div>
