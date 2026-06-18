@@ -50,9 +50,32 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 
 // Ambil facilities dengan nama kategori
+    // BATCH DELETE
+    if (isset($_POST['batch_delete'])) {
+        $ids = $_POST['selected_ids'] ?? [];
+        $deleted = 0;
+        foreach ($ids as $id) {
+            $id = (int)$id;
+            if ($id > 0) {
+                $db->prepare("DELETE FROM hotel_facilities WHERE id=?")->execute([$id]);
+                $deleted++;
+            }
+        }
+        if ($deleted > 0) {
+            $success = "$deleted item dihapus.";
+        }
+    }
+
 $facs = $db->query("SELECT f.*, k.nm_kat_facilities FROM hotel_facilities f LEFT JOIN kat_facilities k ON f.id_kat_facilities = k.id_kat_facilities ORDER BY f.id DESC")->fetchAll(PDO::FETCH_ASSOC);
 ?>
 <h1 class="text-2xl font-bold mb-4">Facilities (Bilingual)</h1>
+<form method="POST" class="mb-3 flex items-center gap-2">
+    <input type="hidden" name="batch_delete" value="1">
+    <label class="flex items-center gap-1 text-sm text-gray-600 cursor-pointer">
+        <input type="checkbox" id="select-all" class="select-all-checkbox"> ☑ Select All
+    </label>
+    <button type="submit" class="bg-red-500 text-white text-xs px-3 py-1 rounded hover:bg-red-600" onclick="return confirm('Hapus item terpilih?')">🗑 Hapus Terpilih</button>
+</form>
 <div class="grid lg:grid-cols-2 gap-6">
     <div class="bg-white p-6 rounded shadow">
         <form method="POST" enctype="multipart/form-data" class="space-y-3">
@@ -87,7 +110,8 @@ $facs = $db->query("SELECT f.*, k.nm_kat_facilities FROM hotel_facilities f LEFT
     </div>
     <div class="bg-white p-6 rounded shadow max-h-[600px] overflow-auto">
         <?php foreach($facs as $f): ?>
-        <div class="border-b pb-2 mb-2 flex justify-between items-start">
+        <div class="border-b pb-2 mb-2 flex items-start gap-2">
+            <input type="checkbox" name="selected_ids[]" value="<?= $i['id'] ?>" class="batch-checkbox">
             <div class="flex gap-3">
                 <img src="<?= htmlspecialchars(get_full_url($f['icon_path'])) ?>" class="w-16 h-16 object-cover rounded">
                 <div>

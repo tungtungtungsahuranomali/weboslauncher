@@ -96,11 +96,34 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         exit;
     }
 }
+    // BATCH DELETE
+    if (isset($_POST['batch_delete'])) {
+        $ids = $_POST['selected_ids'] ?? [];
+        $deleted = 0;
+        foreach ($ids as $id) {
+            $id = (int)$id;
+            if ($id > 0) {
+                $db->prepare("DELETE FROM dining_menu WHERE id=?")->execute([$id]);
+                $deleted++;
+            }
+        }
+        if ($deleted > 0) {
+            $success = "$deleted item dihapus.";
+        }
+    }
+
 $menus = $db->query("SELECT d.*, k.nm_kat_dining FROM dining_menu d LEFT JOIN kat_dining k ON d.id_kat_dining = k.id_kat_dining ORDER BY d.id DESC")->fetchAll(PDO::FETCH_ASSOC);
 ?>
 
 <div class="max-w-5xl mx-auto">
     <h1 class="text-2xl font-bold text-yellow-500 mb-4">Dining Menu (Bilingual)</h1>
+<form method="POST" class="mb-3 flex items-center gap-2">
+    <input type="hidden" name="batch_delete" value="1">
+    <label class="flex items-center gap-1 text-sm text-gray-600 cursor-pointer">
+        <input type="checkbox" id="select-all" class="select-all-checkbox"> ☑ Select All
+    </label>
+    <button type="submit" class="bg-red-500 text-white text-xs px-3 py-1 rounded hover:bg-red-600" onclick="return confirm('Hapus item terpilih?')">🗑 Hapus Terpilih</button>
+</form>
     <!-- Toggle Cart Display for APK -->
     <div class="bg-white p-4 rounded shadow mb-4 flex items-center justify-between">
         <div>
@@ -152,6 +175,7 @@ $menus = $db->query("SELECT d.*, k.nm_kat_dining FROM dining_menu d LEFT JOIN ka
         <table class="w-full border text-sm">
             <thead>
                 <tr class="bg-gray-100">
+                    <th class="p-2 border"><input type="checkbox" id="select-all" class="select-all-checkbox"></th>
                     <th class="p-2 border">IMG</th>
                     <th class="p-2 border">Kategori</th>
                     <th class="p-2 border">Nama (ID)</th>
@@ -163,6 +187,7 @@ $menus = $db->query("SELECT d.*, k.nm_kat_dining FROM dining_menu d LEFT JOIN ka
             <tbody>
                 <?php foreach ($menus as $m): ?>
                     <tr class="hover:bg-gray-50">
+                        <td class="p-2 border text-center"><input type="checkbox" name="selected_ids[]" value="<?= $m['id'] ?>" class="batch-checkbox"></td>
                         <td class="p-2 border text-center"><img src="<?= htmlspecialchars(get_full_url($m['image_url'])) ?>"
                                 class="h-10 w-10 object-cover mx-auto"></td>
                         <td class="p-2 border font-medium text-blue-800"><?= htmlspecialchars($m['nm_kat_dining'] ?? '-') ?></td>

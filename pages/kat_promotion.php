@@ -122,6 +122,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 // ====== AMBIL DATA ======
 $categories = [];
 try {
+
+    // BATCH DELETE
+    if (isset($_POST['batch_delete'])) {
+        $ids = $_POST['selected_ids'] ?? [];
+        $deleted = 0;
+        foreach ($ids as $id) {
+            $id = (int)$id;
+            if ($id > 0) {
+                $db->prepare("DELETE FROM kat_promotion WHERE id_kat_promotion=?")->execute([$id]);
+                $deleted++;
+            }
+        }
+        if ($deleted > 0) {
+            $success = "$deleted kategori berhasil dihapus.";
+        }
+    }
     $categories = $db->query("SELECT * FROM kat_promotion ORDER BY id_kat_promotion DESC")->fetchAll(PDO::FETCH_ASSOC);
 } catch (PDOException $e) {
     // $error = $e->getMessage();
@@ -200,12 +216,20 @@ if (isset($_GET['edit'])) {
     <!-- DAFTAR KATEGORI -->
     <div class="bg-white shadow rounded-lg p-6">
         <h2 class="text-xl font-semibold mb-4">📋 Daftar Kategori</h2>
+            <form method="POST" class="mb-3 flex items-center gap-2" id="batch-form">
+                <input type="hidden" name="batch_delete" value="1">
+                <label class="flex items-center gap-1 text-sm text-gray-600 cursor-pointer">
+                    <input type="checkbox" id="select-all" class="select-all-checkbox"> ☑ Select All
+                </label>
+                <button type="submit" class="bg-red-500 text-white text-xs px-3 py-1 rounded hover:bg-red-600" onclick="return confirm('Hapus kategori terpilih?')">🗑 Hapus Terpilih</button>
+            </form>
         <?php if (empty($categories)): ?>
             <p class="text-gray-500 text-sm">Belum ada kategori yang ditambahkan.</p>
         <?php else: ?>
             <div class="space-y-3 max-h-[500px] overflow-y-auto pr-2">
                 <?php foreach ($categories as $c): ?>
                     <div class="flex gap-4 items-center border-b pb-3">
+                            <input type="checkbox" name="selected_ids[]" value="<?= $c['id_kat_promotion'] ?>" class="batch-checkbox">
                         <?php if (!empty($c['foto_kat_promotion'])): ?>
                             <img src="<?= htmlspecialchars(get_full_url($c['foto_kat_promotion'])) ?>"
                                 class="w-16 h-16 object-cover rounded border flex-shrink-0">
