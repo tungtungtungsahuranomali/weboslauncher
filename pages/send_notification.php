@@ -25,6 +25,15 @@ foreach ($uploadDirs as $dir) {
     if (!is_dir($dir)) mkdir($dir, 0755, true);
 }
 
+// Auto-migrate: add scheduled_at column if missing
+try {
+    $stmt = $db->prepare("SHOW COLUMNS FROM popup_notifications LIKE 'scheduled_at'");
+    $stmt->execute();
+    if (!$stmt->fetch()) {
+        $db->exec("ALTER TABLE popup_notifications ADD COLUMN scheduled_at DATETIME NULL AFTER expires_at");
+    }
+} catch (Exception $e) {}
+
 function json_response(array $payload, int $code = 200): void
 {
     http_response_code($code);

@@ -233,6 +233,15 @@ try {
     if ($action === 'getNotifications') {
         header('Content-Type: application/json; charset=utf-8');
 
+        // Auto-migrate: add scheduled_at column if missing
+        try {
+            $checkStmt = $db->prepare("SHOW COLUMNS FROM popup_notifications LIKE 'scheduled_at'");
+            $checkStmt->execute();
+            if (!$checkStmt->fetch()) {
+                $db->exec("ALTER TABLE popup_notifications ADD COLUMN scheduled_at DATETIME NULL AFTER expires_at");
+            }
+        } catch (Exception $ignore) {}
+
         $deviceId = trim((string)($_GET['device_id'] ?? ''));
         if ($deviceId === '') {
             http_response_code(400);
