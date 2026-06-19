@@ -368,7 +368,7 @@ CREATE TABLE `global_settings` (
   `setting_value` text DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `setting_key` (`setting_key`)
-) ENGINE=InnoDB AUTO_INCREMENT=138 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=152 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -386,9 +386,19 @@ INSERT INTO `global_settings` VALUES
 (16,'launcher_bg',''),
 (17,'launcher_home_bg','uploads/homebg/launcher_home_bg.jpg?v=1766986021'),
 (26,'loading_logo_url','uploads/logo/loading_logo.png?v=1762812096'),
-(29,'custom_greeting_title','Welcome'),
-(30,'custom_welcome_greeting','Selamat datang di Hotel Harris.\r\nKami sangat senang menyambut Anda sebagai tamu istimewa kami.\r\nNikmati kenyamanan kamar, layanan ramah, serta suasana modern dan kreatif yang telah kami siapkan untuk membuat masa inap Anda lebih berkesan.\r\nJika Anda membutuhkan bantuan kapan saja, tim kami selalu siap melayani dengan sepenuh hati.\r\nSelamat beristirahat & enjoy your stay!\r\n\r\n— Branch Manager, Hotel Harris'),
-(31,'custom_greeting_image','uploads/greeting/greeting_img.jpg?v=1769756199');
+(30,'custom_welcome_greeting','Selamat datang Bapak [guest] di Hotel Harris.\r\nKami sangat senang menyambut Anda sebagai tamu istimewa kami.\r\nNikmati kenyamanan kamar, layanan ramah, serta suasana modern dan kreatif yang telah kami siapkan untuk membuat masa inap Anda lebih berkesan.\r\nJika Anda membutuhkan bantuan kapan saja, tim kami selalu siap melayani dengan sepenuh hati.\r\nSelamat beristirahat & enjoy your stay!\r\n\r\n— Branch Manager, Hotel Harris'),
+(31,'custom_greeting_image','uploads/greeting/greeting_img.jpg?v=1769756199'),
+(139,'custom_greeting_title',''),
+(141,'custom_greeting_title_en',''),
+(142,'custom_welcome_greeting_en',''),
+(143,'greeting_title_id_enabled','1'),
+(144,'greeting_title_en_enabled','1'),
+(145,'greeting_content_id_enabled','1'),
+(146,'greeting_content_en_enabled','1'),
+(147,'greeting_title_color','#000000'),
+(148,'greeting_content_color','#000000'),
+(149,'greeting_btn_color','#facc15'),
+(150,'greeting_btn_text_color','#000000');
 /*!40000 ALTER TABLE `global_settings` ENABLE KEYS */;
 UNLOCK TABLES;
 COMMIT;
@@ -410,7 +420,7 @@ CREATE TABLE `guest_checkin` (
   `status` enum('checked_in','checked_out') NOT NULL DEFAULT 'checked_in',
   PRIMARY KEY (`id`),
   KEY `room_number` (`room_number`,`status`)
-) ENGINE=InnoDB AUTO_INCREMENT=40 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=41 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -947,7 +957,7 @@ CREATE TABLE `system_apps` (
   `android_package` varchar(255) DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `app_key` (`app_key`)
-) ENGINE=InnoDB AUTO_INCREMENT=32 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=33 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -970,7 +980,8 @@ INSERT INTO `system_apps` VALUES
 (25,'tv_local','TV Channel',NULL,'uploads/icons/icon_1772552379.png',1,5,'com.mmaplay.iptv'),
 (29,'promotion','promotion','promotion','uploads/icons/icon_1773353782.png',1,3,NULL),
 (30,'general_info','General Information',NULL,'uploads/icons/icon_1773563755.png',1,0,'internal.general_info'),
-(31,'transport','Transportation','Transportation','img/tv.png',1,12,NULL);
+(31,'transport','Transportation','Transportation','img/tv.png',1,12,NULL),
+(32,'iptv_web','IPTV Web','IPTV Web','img/tv.png',1,999,NULL);
 /*!40000 ALTER TABLE `system_apps` ENABLE KEYS */;
 UNLOCK TABLES;
 COMMIT;
@@ -1126,4 +1137,4 @@ SET AUTOCOMMIT=@OLD_AUTOCOMMIT;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*M!100616 SET NOTE_VERBOSITY=@OLD_NOTE_VERBOSITY */;
 
--- Dump completed on 2026-06-18 16:38:26
+-- Dump completed on 2026-06-19 11:03:04

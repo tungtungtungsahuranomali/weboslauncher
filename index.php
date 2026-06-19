@@ -474,7 +474,8 @@ include 'config.php';
       amenities: 'amenities.html?v=14',
       dining: 'dining.html?v=9',
       promotion: 'promotion.html?v=7',
-      transport: 'transport.html'
+      transport: 'transport.html',
+      iptv_web: 'iptv.html'
     };
 
     const WEB_URLS = {
