@@ -91,6 +91,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       }
     }
 
+    if ($action === 'update_device_info') {
+      $id = (int) ($_POST['id'] ?? 0);
+      $device_name = trim($_POST['device_name'] ?? '');
+      $room_number = trim($_POST['room_number'] ?? '');
+      if ($id > 0 && $device_name !== '' && $room_number !== '') {
+        $stmt = $db->prepare("UPDATE managed_devices SET device_name = ?, room_number = ? WHERE id = ?");
+        $stmt->execute([$device_name, $room_number, $id]);
+        $success = 'Data perangkat berhasil diperbarui.';
+      } else {
+        $error = 'Nama dan nomor kamar wajib diisi.';
+      }
+    }
+
     if ($action === 'delete_device') {
       $id = (int) ($_POST['id'] ?? 0);
       if ($id > 0) {
@@ -388,6 +401,10 @@ try {
                         🗑 Hapus
                       </button>
                     </form>
+                    <button type="button" onclick="editDevice(<?= $d['id'] ?>, '<?= htmlspecialchars(addslashes($d['device_name'])) ?>', '<?= htmlspecialchars(addslashes($d['room_number'])) ?>')"
+                      class="w-full px-3 py-1.5 bg-blue-50 text-blue-600 text-xs font-medium rounded hover:bg-blue-100 border border-blue-200">
+                      ✏️ Edit
+                    </button>
                   </div>
                 </td>
               </tr>
@@ -398,3 +415,43 @@ try {
     </div>
   </div>
 </div>
+
+<!-- Edit Device Modal -->
+<div id="editDeviceModal" class="fixed inset-0 bg-black/50 hidden items-center justify-center z-50" style="display:none">
+  <div class="bg-white rounded-xl shadow-lg p-6 w-full max-w-md mx-4">
+    <h3 class="font-bold text-lg mb-4">✏️ Edit Perangkat</h3>
+    <form method="POST" class="space-y-3">
+      <input type="hidden" name="action" value="update_device_info">
+      <input type="hidden" name="id" id="edit-id">
+
+      <div>
+        <label class="block text-sm font-medium mb-1">Nama Perangkat</label>
+        <input type="text" name="device_name" id="edit-name" required
+          class="w-full border rounded px-3 py-2 focus:ring-2 focus:ring-yellow-400">
+      </div>
+
+      <div>
+        <label class="block text-sm font-medium mb-1">Nomor Kamar</label>
+        <input type="text" name="room_number" id="edit-room" required
+          class="w-full border rounded px-3 py-2 focus:ring-2 focus:ring-yellow-400">
+      </div>
+
+      <div class="flex gap-2">
+        <button type="submit" class="flex-1 bg-yellow-400 text-gray-900 py-2 rounded font-semibold hover:bg-yellow-500">Simpan</button>
+        <button type="button" onclick="closeEditDevice()" class="px-4 bg-gray-200 py-2 rounded hover:bg-gray-300">Batal</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+function editDevice(id, name, room) {
+  document.getElementById('edit-id').value = id;
+  document.getElementById('edit-name').value = name;
+  document.getElementById('edit-room').value = room;
+  document.getElementById('editDeviceModal').style.display = 'flex';
+}
+function closeEditDevice() {
+  document.getElementById('editDeviceModal').style.display = 'none';
+}
+</script>
