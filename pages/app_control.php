@@ -77,8 +77,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['edit_app'])) {
     $sort = (int) ($_POST['sort_order'] ?? 99);
 
     if ($name) {
-        $app_key = preg_replace('/[^a-z0-9]+/', '_', strtolower($name));
-        $app_key = trim($app_key, '_');
+        // Ambil app_key lama dari DB — jangan regenerate dari nama karena bisa ngerusak routing
+        $oldKey = $db->prepare("SELECT app_key FROM system_apps WHERE id=?");
+        $oldKey->execute([$id]);
+        $app_key = $oldKey->fetchColumn();
+        if (empty($app_key)) {
+            $app_key = preg_replace('/[^a-z0-9]+/', '_', strtolower($name));
+            $app_key = trim($app_key, '_');
+        }
 
         if ($app_key === 'general_information' || $app_key === 'general_info') {
             $app_key = 'general_info';
