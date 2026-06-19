@@ -297,6 +297,11 @@ $greeting_btn_text_color = get_setting('greeting_btn_text_color') ?: '#000000';
         <p class="text-gray-600 mb-4">Atur konten, judul, dan gambar sambutan yang tampil setelah video splash screen.
             Tamu bisa memilih bahasa di TV.</p>
 
+        <div class="bg-blue-50 border border-blue-200 text-blue-700 px-4 py-3 rounded-lg mb-4 text-sm">
+            💡 Gunakan <code>[guest]</code> untuk nama tamu otomatis, <code>[room]</code> untuk nomor kamar.
+            Contoh: "Selamat datang <code>[guest]</code>"
+        </div>
+
         <form method="POST" enctype="multipart/form-data" class="space-y-4">
             <input type="hidden" name="save_custom_greeting" value="1">
 

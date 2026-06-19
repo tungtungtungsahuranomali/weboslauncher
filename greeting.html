@@ -181,6 +181,33 @@
                 const d = await res.json();
                 const item = d.data;
 
+                // Ambil device_id dari URL / AndroidBridge / localStorage
+                const urlParams = new URLSearchParams(window.location.search);
+                const deviceId = urlParams.get('device_id')
+                    || (window.AndroidBridge && typeof window.AndroidBridge.getDeviceId === 'function' ? window.AndroidBridge.getDeviceId() : null)
+                    || localStorage.getItem('myDeviceID_v8_final')
+                    || '';
+
+                // Fetch guest info untuk replace [guest] dan [room]
+                let guestName = '';
+                let roomNumber = '';
+                if (deviceId) {
+                    try {
+                        const giRes = await fetch(`./api.php?action=getGuestInfo&device_id=${deviceId}&_=${Date.now()}`);
+                        const giData = await giRes.json();
+                        if (giData.status === 'success') {
+                            guestName = giData.data.guest_name || '';
+                            roomNumber = giData.data.room_number || '';
+                        }
+                    } catch (e) {}
+                }
+
+                // Replace [guest] dan [room] di title & content
+                if (guestName || roomNumber) {
+                    if (item.title) item.title = item.title.replace(/\[guest\]/g, guestName || '').replace(/\[room\]/g, roomNumber || '');
+                    if (item.content) item.content = item.content.replace(/\[guest\]/g, guestName || '').replace(/\[room\]/g, roomNumber || '');
+                }
+
                 const tvScreenContainer = document.querySelector('.tv-screen-container');
 
                 // Preload gambar background dulu sebelum ditampilkan
