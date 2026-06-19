@@ -94,9 +94,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             if (in_array($ext, $allowed, true)) {
                 // Cek ukuran file: maksimal 250MB
-                $maxSize = 700 * 1024 * 1024; // 700MB
+                $maxSize = 10 * 1024 * 1024 * 1024; // 10GB (no limit)
                 if (($_FILES['video_file']['size'] ?? 0) > $maxSize) {
-                    flash('error', 'Ukuran video terlalu besar! Maksimal 700MB. File Anda: ' . round(($_FILES['video_file']['size'] ?? 0) / 1024 / 1024, 1) . 'MB');
+                    flash('error', 'Ukuran video terlalu besar! Large file allowed. File Anda: ' . round(($_FILES['video_file']['size'] ?? 0) / 1024 / 1024, 1) . 'MB');
                 } else {
                     $filename = 'flashscreen.' . $ext;
                     $targetFile = $uploadDir . $filename;
@@ -249,7 +249,7 @@ $greeting_btn_text_color = get_setting('greeting_btn_text_color') ?: '#000000';
 
         <form method="POST" enctype="multipart/form-data" class="mt-6">
             <label class="block text-sm font-medium text-gray-700 mb-2">Upload Video Flashscreen (MP4, MOV,
-                WEBM) — <span class="text-red-500">Maks. 100MB</span></label>
+                WEBM) — <span class="text-red-500">No limit</span></label>
             <input type="file" name="video_file" accept=".mp4,.mov,.webm"
                 class="block mb-3 w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-yellow-50 file:text-yellow-700 hover:file:bg-yellow-100">
             <button type="submit" name="upload_flash"
