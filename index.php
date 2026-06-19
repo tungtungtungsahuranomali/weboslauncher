@@ -475,7 +475,8 @@ include 'config.php';
       dining: 'dining.html?v=9',
       promotion: 'promotion.html?v=7',
       transport: 'transport.html',
-      iptv_web: 'iptv.html'
+      iptv_web: 'iptv.html',
+      info_playlist: 'info_player.html'
     };
 
     const WEB_URLS = {

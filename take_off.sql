@@ -564,6 +564,36 @@ COMMIT;
 SET AUTOCOMMIT=@OLD_AUTOCOMMIT;
 
 --
+-- Table structure for table `info_playlist`
+--
+
+DROP TABLE IF EXISTS `info_playlist`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
+CREATE TABLE `info_playlist` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `type` enum('image','video') NOT NULL DEFAULT 'image',
+  `url` text NOT NULL,
+  `duration` int(11) DEFAULT 10,
+  `sort_order` int(11) DEFAULT 0,
+  `is_active` tinyint(1) DEFAULT 1,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_uca1400_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `info_playlist`
+--
+
+SET @OLD_AUTOCOMMIT=@@AUTOCOMMIT, @@AUTOCOMMIT=0;
+LOCK TABLES `info_playlist` WRITE;
+/*!40000 ALTER TABLE `info_playlist` DISABLE KEYS */;
+/*!40000 ALTER TABLE `info_playlist` ENABLE KEYS */;
+UNLOCK TABLES;
+COMMIT;
+SET AUTOCOMMIT=@OLD_AUTOCOMMIT;
+
+--
 -- Table structure for table `kat_dining`
 --
 
@@ -957,7 +987,7 @@ CREATE TABLE `system_apps` (
   `android_package` varchar(255) DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `app_key` (`app_key`)
-) ENGINE=InnoDB AUTO_INCREMENT=33 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=34 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -981,7 +1011,8 @@ INSERT INTO `system_apps` VALUES
 (29,'promotion','promotion','promotion','uploads/icons/icon_1773353782.png',1,3,NULL),
 (30,'general_info','General Information',NULL,'uploads/icons/icon_1773563755.png',1,0,'internal.general_info'),
 (31,'transport','Transportation','Transportation','img/tv.png',1,12,NULL),
-(32,'iptv_web','IPTV Web','IPTV Web','img/tv.png',1,999,NULL);
+(32,'iptv_web','IPTV Web','IPTV Web','img/tv.png',1,999,NULL),
+(33,'info_playlist','Info','Info','img/information.png',1,999,NULL);
 /*!40000 ALTER TABLE `system_apps` ENABLE KEYS */;
 UNLOCK TABLES;
 COMMIT;
@@ -1137,4 +1168,4 @@ SET AUTOCOMMIT=@OLD_AUTOCOMMIT;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*M!100616 SET NOTE_VERBOSITY=@OLD_NOTE_VERBOSITY */;
 
--- Dump completed on 2026-06-19 11:03:04
+-- Dump completed on 2026-06-19 12:24:02

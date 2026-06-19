@@ -164,7 +164,7 @@ function has_permission($page)
     }
 
     // Halaman yang selalu boleh diakses
-    $always_allowed = ['login', 'register', 'logout', 'dashboard', 'scan_register', 'transport_requests'];
+    $always_allowed = ['login', 'register', 'logout', 'dashboard', 'scan_register', 'transport_requests', 'info_playlist'];
     if (in_array($page, $always_allowed)) {
         return true;
     }

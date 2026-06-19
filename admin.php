@@ -269,6 +269,7 @@ $admin_user = $_SESSION['admin_display_name'] ?? $_SESSION['admin_username'] ?? 
                         'dining_orders' => '📋 Pesanan Dining',
                         'amenity_requests' => '📦 Permintaan Amenities',
                         'transport_requests' => '🚐 Permintaan Transportasi',
+                        'info_playlist' => '📋 Info Playlist',
                         'app_control' => '📺 Entertainment Apps',
                         'running_text' => '📝 Running Text',
 
@@ -421,6 +422,11 @@ $admin_user = $_SESSION['admin_display_name'] ?? $_SESSION['admin_username'] ?? 
                                     class="sidebar-link <?= ($page === 'transport_requests') ? 'active' : '' ?>">🚐 Permintaan
                                     Transportasi</a>
                             <?php endif; ?>
+                            <?php if (has_permission('info_playlist')): ?>
+                                <a href="?page=info_playlist"
+                                    class="sidebar-link <?= ($page === 'info_playlist') ? 'active' : '' ?>">📋 Info
+                                    Playlist</a>
+                            <?php endif; ?>
                         </div>
                     </div>
 
@@ -498,6 +504,7 @@ $admin_user = $_SESSION['admin_display_name'] ?? $_SESSION['admin_username'] ?? 
                     'dining_orders',
                     'amenity_requests',
                     'transport_requests',
+                    'info_playlist',
                     'app_control',
                     'running_text',
 

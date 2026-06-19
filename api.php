@@ -801,6 +801,22 @@ try {
             }
             break;
 
+        case 'getInfoPlaylist':
+            try {
+                $stmt = $db->query("SELECT id, type, url, duration FROM info_playlist WHERE is_active=1 ORDER BY sort_order ASC");
+                $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+                // Ensure full URLs for paths
+                foreach ($rows as &$row) {
+                    if (!empty($row['url']) && strpos($row['url'], 'http') !== 0) {
+                        $row['url'] = get_full_url($row['url']);
+                    }
+                }
+                echo json_encode(['status' => 'success', 'data' => $rows]);
+            } catch (Exception $e) {
+                echo json_encode(['status' => 'error', 'message' => $e->getMessage()]);
+            }
+            break;
+
         case 'getSplash':
             $stmt = $db->prepare("SELECT setting_value FROM global_settings WHERE setting_key='splash_enabled'");
             $stmt->execute();
