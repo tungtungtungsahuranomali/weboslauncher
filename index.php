@@ -698,8 +698,16 @@ include 'config.php';
 
     function applyLanguageText(lang) {
       // Update teks UI statis
-      document.querySelector('.guest-hello').textContent = (lang === 'id') ? 'Selamat Datang' : 'Welcome';
-      document.querySelector('.room-label').textContent = (lang === 'id') ? 'Kamar' : 'Room';
+      if (lang === 'zh') {
+        document.querySelector('.guest-hello').textContent = '欢迎';
+        document.querySelector('.room-label').textContent = '房间';
+      } else if (lang === 'en') {
+        document.querySelector('.guest-hello').textContent = 'Welcome';
+        document.querySelector('.room-label').textContent = 'Room';
+      } else {
+        document.querySelector('.guest-hello').textContent = 'Selamat Datang';
+        document.querySelector('.room-label').textContent = 'Kamar';
+      }
     }
 
     function getWeatherIcon(iconCode) {
@@ -1197,8 +1205,10 @@ include 'config.php';
       const now = new Date();
       const lang = getCurrentLang();
 
-      timeEl.textContent = now.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', hour12: false });
-      const dateString = now.toLocaleDateString(lang === 'en' ? 'en-US' : 'id-ID', {
+      const timeLocale = (lang === 'en') ? 'en-US' : (lang === 'zh') ? 'zh-CN' : 'id-ID';
+      timeEl.textContent = now.toLocaleTimeString(timeLocale, { hour: '2-digit', minute: '2-digit', hour12: false });
+      const dateLocale = (lang === 'en') ? 'en-US' : (lang === 'zh') ? 'zh-CN' : 'id-ID';
+      const dateString = now.toLocaleDateString(dateLocale, {
         weekday: 'long', day: 'numeric', month: 'long', year: 'numeric'
       });
 

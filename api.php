@@ -981,6 +981,12 @@ try {
                 $title_enabled = (int) (get_setting('greeting_title_en_enabled') ?? 1);
                 $content_enabled = (int) (get_setting('greeting_content_en_enabled') ?? 1);
             }
+            elseif ($lang === 'zh') {
+                $title = get_setting('custom_greeting_title_zh') ?: get_setting('custom_greeting_title') ?: '欢迎';
+                $content = get_setting('custom_welcome_greeting_zh') ?: get_setting('custom_welcome_greeting') ?: '欢迎来到我们的酒店';
+                $title_enabled = (int) (get_setting('greeting_title_zh_enabled') ?? 1);
+                $content_enabled = (int) (get_setting('greeting_content_zh_enabled') ?? 1);
+            }
             else {
                 $title = get_setting('custom_greeting_title') ?: 'Selamat Datang';
                 $content = get_setting('custom_welcome_greeting') ?: 'Selamat datang di Hotel kami';

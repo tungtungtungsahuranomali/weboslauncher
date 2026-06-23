@@ -127,15 +127,18 @@
                     <div id="greeting-text-area"></div>
                     <div class="mt-8 flex items-center gap-6">
                         <div class="flex space-x-4">
-                            <button class="lang-btn" data-lang="id" tabindex="1" onfocus="setLanguage('id')" onclick="setLanguage('id')">
-                                <img src="img/ind.png" alt="Indonesia">
-                            </button>
-                            <button class="lang-btn" data-lang="en" tabindex="2" onfocus="setLanguage('en')" onclick="setLanguage('en')">
-                                <img src="img/eng.png" alt="English">
-                            </button>
+            <button class="lang-btn" data-lang="id" tabindex="1" onfocus="setLanguage('id')" onclick="setLanguage('id')">
+                <img src="img/ind.png" alt="Indonesia">
+            </button>
+            <button class="lang-btn" data-lang="en" tabindex="2" onfocus="setLanguage('en')" onclick="setLanguage('en')">
+                <img src="img/eng.png" alt="English">
+            </button>
+            <button class="lang-btn" data-lang="zh" tabindex="3" onfocus="setLanguage('zh')" onclick="setLanguage('zh')">
+                <img src="img/chn.png" alt="中文">
+            </button>
                         </div>
                         <div>
-                            <a href="index.php" id="btn" tabindex="3" class="btn">Lanjut &rarr;</a>
+                            <a href="index.php" id="btn" tabindex="4" class="btn">Lanjut &rarr;</a>
                         </div>
                     </div>
                 </div>
@@ -271,7 +274,7 @@
                 card.classList.remove('hidden');
 
                 // Update teks tombol Lanjut sesuai bahasa
-                const btnText = (lang === 'en') ? 'Continue &rarr;' : 'Lanjut &rarr;';
+                const btnText = (lang === 'en') ? 'Continue &rarr;' : (lang === 'zh') ? '继续 &rarr;' : 'Lanjut &rarr;';
                 const btn = document.getElementById('btn');
                 btn.innerHTML = btnText;
                 
@@ -338,9 +341,12 @@
                         <button class="lang-btn" data-lang="en" tabindex="2" onfocus="setLanguage('en')" onclick="setLanguage('en')">
                             <img src="img/eng.png" alt="English">
                         </button>
+                        <button class="lang-btn" data-lang="zh" tabindex="3" onfocus="setLanguage('zh')" onclick="setLanguage('zh')">
+                            <img src="img/chn.png" alt="中文">
+                        </button>
                     </div>
                     <div>
-                        <a href="index.php" id="btn" tabindex="3" class="btn">Lanjut &rarr;</a>
+                        <a href="index.php" id="btn" tabindex="4" class="btn">Lanjut &rarr;</a>
                     </div>
                 </div>
             </div>
@@ -364,15 +370,19 @@
                 const active = document.activeElement;
                 if (active.classList.contains('lang-btn') && active.dataset.lang === 'id') {
                     document.querySelector('[data-lang="en"]').focus();
-                } else if (active.dataset.lang === 'en') {
+                } else if (active.classList.contains('lang-btn') && active.dataset.lang === 'en') {
+                    document.querySelector('[data-lang="zh"]').focus();
+                } else if (active.classList.contains('lang-btn') && active.dataset.lang === 'zh') {
                     document.getElementById('btn').focus();
                 }
             }
             if (e.key === 'ArrowLeft') {
                 const active = document.activeElement;
                 if (active.id === 'btn') {
+                    document.querySelector('[data-lang="zh"]').focus();
+                } else if (active.classList.contains('lang-btn') && active.dataset.lang === 'zh') {
                     document.querySelector('[data-lang="en"]').focus();
-                } else if (active.dataset.lang === 'en') {
+                } else if (active.classList.contains('lang-btn') && active.dataset.lang === 'en') {
                     document.querySelector('[data-lang="id"]').focus();
                 }
             }

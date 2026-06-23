@@ -130,15 +130,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (isset($_POST['save_custom_greeting'])) {
         $title_id = trim($_POST['greeting_title_id'] ?? '');
         $title_en = trim($_POST['greeting_title_en'] ?? '');
+        $title_zh = trim($_POST['greeting_title_zh'] ?? '');
         $content_id = trim($_POST['greeting_content_id'] ?? '');
         $content_en = trim($_POST['greeting_content_en'] ?? '');
+        $content_zh = trim($_POST['greeting_content_zh'] ?? '');
         $image_url = trim($_POST['greeting_image_url'] ?? '');
 
         // New settings
         $title_id_enabled = isset($_POST['greeting_title_id_enabled']) ? 1 : 0;
         $title_en_enabled = isset($_POST['greeting_title_en_enabled']) ? 1 : 0;
+        $title_zh_enabled = isset($_POST['greeting_title_zh_enabled']) ? 1 : 0;
         $content_id_enabled = isset($_POST['greeting_content_id_enabled']) ? 1 : 0;
         $content_en_enabled = isset($_POST['greeting_content_en_enabled']) ? 1 : 0;
+        $content_zh_enabled = isset($_POST['greeting_content_zh_enabled']) ? 1 : 0;
         $title_color = $_POST['greeting_title_color'] ?? '#000000';
         $content_color = $_POST['greeting_content_color'] ?? '#000000';
         $btn_color = $_POST['greeting_btn_color'] ?? '#facc15';
@@ -170,11 +174,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         set_setting('custom_greeting_title_en', $title_en);
         set_setting('custom_welcome_greeting_en', $content_en);
 
+        // Simpan versi Mandarin
+        set_setting('custom_greeting_title_zh', $title_zh);
+        set_setting('custom_welcome_greeting_zh', $content_zh);
+
         // Simpan status enabled/disabled
         set_setting('greeting_title_id_enabled', $title_id_enabled);
         set_setting('greeting_title_en_enabled', $title_en_enabled);
+        set_setting('greeting_title_zh_enabled', $title_zh_enabled);
         set_setting('greeting_content_id_enabled', $content_id_enabled);
         set_setting('greeting_content_en_enabled', $content_en_enabled);
+        set_setting('greeting_content_zh_enabled', $content_zh_enabled);
 
         // Simpan warna
         set_setting('greeting_title_color', $title_color);
@@ -219,13 +229,17 @@ $custom_greeting_content_id = htmlspecialchars($db->query("SELECT setting_value 
 $custom_greeting_title_id = htmlspecialchars($db->query("SELECT setting_value FROM global_settings WHERE setting_key='custom_greeting_title'")->fetchColumn() ?? '');
 $custom_greeting_content_en = htmlspecialchars($db->query("SELECT setting_value FROM global_settings WHERE setting_key='custom_welcome_greeting_en'")->fetchColumn() ?? '');
 $custom_greeting_title_en = htmlspecialchars($db->query("SELECT setting_value FROM global_settings WHERE setting_key='custom_greeting_title_en'")->fetchColumn() ?? '');
+$custom_greeting_content_zh = htmlspecialchars($db->query("SELECT setting_value FROM global_settings WHERE setting_key='custom_welcome_greeting_zh'")->fetchColumn() ?? '');
+$custom_greeting_title_zh = htmlspecialchars($db->query("SELECT setting_value FROM global_settings WHERE setting_key='custom_greeting_title_zh'")->fetchColumn() ?? '');
 $custom_greeting_image = htmlspecialchars($db->query("SELECT setting_value FROM global_settings WHERE setting_key='custom_greeting_image'")->fetchColumn() ?? '');
 
 // New settings fetch
 $greeting_title_id_enabled = (int) (get_setting('greeting_title_id_enabled') ?? 1);
 $greeting_title_en_enabled = (int) (get_setting('greeting_title_en_enabled') ?? 1);
+$greeting_title_zh_enabled = (int) (get_setting('greeting_title_zh_enabled') ?? 1);
 $greeting_content_id_enabled = (int) (get_setting('greeting_content_id_enabled') ?? 1);
 $greeting_content_en_enabled = (int) (get_setting('greeting_content_en_enabled') ?? 1);
+$greeting_content_zh_enabled = (int) (get_setting('greeting_content_zh_enabled') ?? 1);
 $greeting_title_color = get_setting('greeting_title_color') ?: '#000000';
 $greeting_content_color = get_setting('greeting_content_color') ?: '#000000';
 $greeting_btn_color = get_setting('greeting_btn_color') ?: '#facc15';
@@ -306,7 +320,7 @@ $greeting_btn_text_color = get_setting('greeting_btn_text_color') ?: '#000000';
             <input type="hidden" name="save_custom_greeting" value="1">
 
             <!-- Judul -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div class="space-y-2">
                     <div class="flex justify-between items-center">
                         <label class="block text-sm font-medium text-gray-700">🇮🇩 Judul Sambutan (Indonesia)</label>
@@ -333,10 +347,23 @@ $greeting_btn_text_color = get_setting('greeting_btn_text_color') ?: '#000000';
                         placeholder="Welcome"
                         class="w-full mt-1 border border-gray-300 rounded px-3 py-2 focus:ring-2 focus:ring-yellow-400 focus:border-yellow-400">
                 </div>
+                <div class="space-y-2">
+                    <div class="flex justify-between items-center">
+                        <label class="block text-sm font-medium text-gray-700">🇨🇳 Judul Sambutan (Mandarin)</label>
+                        <label class="inline-flex items-center cursor-pointer select-none">
+                            <input type="checkbox" name="greeting_title_zh_enabled" class="hidden peer" <?= $greeting_title_zh_enabled ? 'checked' : '' ?>>
+                            <div class="relative w-10 h-5 bg-gray-200 rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-yellow-400"></div>
+                            <span class="ms-2 text-xs font-medium text-gray-900">Aktif</span>
+                        </label>
+                    </div>
+                    <input type="text" name="greeting_title_zh" value="<?= $custom_greeting_title_zh ?>"
+                        placeholder="欢迎"
+                        class="w-full mt-1 border border-gray-300 rounded px-3 py-2 focus:ring-2 focus:ring-yellow-400 focus:border-yellow-400">
+                </div>
             </div>
 
             <!-- Isi Pesan -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div class="space-y-2">
                     <div class="flex justify-between items-center">
                         <label class="block text-sm font-medium text-gray-700">🇮🇩 Isi Pesan Sambutan (Indonesia)</label>
@@ -360,6 +387,18 @@ $greeting_btn_text_color = get_setting('greeting_btn_text_color') ?: '#000000';
                     </div>
                     <textarea name="greeting_content_en" rows="6" placeholder="Welcome to our Hotel..."
                         class="w-full mt-1 border border-gray-300 rounded px-3 py-2 focus:ring-2 focus:ring-yellow-400 focus:border-yellow-400"><?= $custom_greeting_content_en ?></textarea>
+                </div>
+                <div class="space-y-2">
+                    <div class="flex justify-between items-center">
+                        <label class="block text-sm font-medium text-gray-700">🇨🇳 Isi Pesan Sambutan (Mandarin)</label>
+                        <label class="inline-flex items-center cursor-pointer select-none">
+                            <input type="checkbox" name="greeting_content_zh_enabled" class="hidden peer" <?= $greeting_content_zh_enabled ? 'checked' : '' ?>>
+                            <div class="relative w-10 h-5 bg-gray-200 rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-yellow-400"></div>
+                            <span class="ms-2 text-xs font-medium text-gray-900">Aktif</span>
+                        </label>
+                    </div>
+                    <textarea name="greeting_content_zh" rows="6" placeholder="欢迎来到我们的酒店..."
+                        class="w-full mt-1 border border-gray-300 rounded px-3 py-2 focus:ring-2 focus:ring-yellow-400 focus:border-yellow-400"><?= $custom_greeting_content_zh ?></textarea>
                 </div>
             </div>
 
