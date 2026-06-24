@@ -28,6 +28,9 @@ Thumbs.db
 .env
 .env.local
 
+# webOS IPK build output
+/build/
+
 # Composer lock (optional - remove if needed)
 /composer.lock
 id_ed25519_new

@@ -1,0 +1,20 @@
+{
+  "id": "com.takeoff.launcher",
+  "version": "1.0.0",
+  "type": "web",
+  "main": "index.html",
+  "title": "TakeOff",
+  "icon": "icon.png",
+  "largeIcon": "icon-color.png",
+  "resolution": {
+    "width": 1920,
+    "height": 1080
+  },
+  "disableBackHistoryAPI": true,
+  "noSplashOnLaunch": true,
+  "spinnerOnLaunch": false,
+  "visible": true,
+  "supportGIP": true,
+  "handlesRelaunch": false,
+  "checkUpdateOnLaunch": false
+}
