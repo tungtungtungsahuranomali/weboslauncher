@@ -1,5 +1,5 @@
 # Dependencies
-# /vendor/
+/vendor/
 
 # Uploads (dynamic content)
 /uploads/
@@ -27,6 +27,9 @@ Thumbs.db
 # Environment
 .env
 .env.local
+
+# Skynet
+/.skynet/
 
 # webOS IPK build output
 /build/
