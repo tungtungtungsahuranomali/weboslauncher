@@ -30,6 +30,7 @@ Thumbs.db
 
 # webOS IPK build output
 /build/
+*.ipk
 
 # Composer lock (optional - remove if needed)
 /composer.lock
