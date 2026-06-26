@@ -485,6 +485,15 @@ include 'config.php';
       vidio: 'https://www.vidio.com',
       youtube: 'https://www.youtube.com'
     };
+
+    const WEBOS_APP_IDS = {
+      netflix: 'netflix',
+      youtube: 'youtube.leanback.v4',
+      spotify: 'spotify-beehive',
+      'com.netflix.ninja': 'netflix',
+      'com.google.android.youtube.tv': 'youtube.leanback.v4',
+      'com.spotify.tv.android': 'spotify-beehive'
+    };
     // == Kunci localStorage 
     const STORAGE_REG_CODE_KEY = 'myRegistrationCode_v8_final';
     const STORAGE_DEVICE_ID_KEY = 'myDeviceID_v8_final';
@@ -844,6 +853,24 @@ include 'config.php';
       updateArrowVisibility();
     }
 
+    function launchWebOSApp(appKey, pkg) {
+      const appId = WEBOS_APP_IDS[appKey] || WEBOS_APP_IDS[pkg] || pkg;
+      if (window.webOS && webOS.service) {
+        webOS.service.request('luna://com.webos.applicationManager/launch', {
+          method: 'launch',
+          parameters: { id: appId },
+          onSuccess: function() { console.log('Launched:', appId); },
+          onFailure: function(err) {
+            console.error('webOS launch failed:', appId, err);
+            const url = WEB_URLS[appKey];
+            if (url) window.location.href = url;
+          }
+        });
+        return true;
+      }
+      return false;
+    }
+
     function handleItemClick(item) {
       if (!item) return;
       if (item.dataset.page) {
@@ -853,15 +880,21 @@ include 'config.php';
         window.location.href = item.dataset.page;
       }
       else if (item.dataset.pkg) {
-        if (/android/i.test(navigator.userAgent)) {
-          launchNativeApp(item.dataset.pkg, item.dataset.label);
+        // Priority 1: webOS native app
+        if (launchWebOSApp(item.dataset.key, item.dataset.pkg)) {
+          return;
+        }
+        // Priority 2: Android native app
+        if (window.AndroidBridge && typeof window.AndroidBridge.launchApp === 'function') {
+          window.AndroidBridge.launchApp(item.dataset.pkg);
+          return;
+        }
+        // Priority 3: Fallback browser
+        const webUrl = WEB_URLS[item.dataset.key];
+        if (webUrl) {
+          window.location.href = webUrl;
         } else {
-          const webUrl = WEB_URLS[item.dataset.key];
-          if (webUrl) {
-            window.location.href = webUrl;
-          } else {
-            window.location.href = item.dataset.pkg;
-          }
+          window.location.href = item.dataset.pkg;
         }
       }
     }
