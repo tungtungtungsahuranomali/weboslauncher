@@ -40,6 +40,7 @@
 <script>
 var STORAGE_SERVER_KEY = 'webos_server_url';
 var SERVER_URL = '';
+var EIM_REGISTERED_KEY = 'eim_registered';
 
 function getServerUrl() {
   var url = localStorage.getItem(STORAGE_SERVER_KEY);
@@ -57,6 +58,29 @@ function saveUrl() {
   window.location.href = url.replace(/\/+$/, '') + '/index.php';
 }
 
+function registerEim() {
+  if (!window.webOS || !webOS.service) return;
+  webOS.service.request('luna://com.webos.service.eim', {
+    method: 'addDevice',
+    parameters: {
+      appId: 'com.takeoff.launcher',
+      pigImage: 'icon.png',
+      mvpdIcon: '',
+      type: 'MVPD_IP',
+      showPopup: false,
+      label: 'TakeOff',
+      description: 'TakeOff Hotel Launcher'
+    },
+    onSuccess: function() {
+      console.log('EIM register success');
+      localStorage.setItem(EIM_REGISTERED_KEY, '1');
+    },
+    onFailure: function(err) {
+      console.error('EIM register failed:', err);
+    }
+  });
+}
+
 function showSetup() {
   document.getElementById('setup').classList.add('active');
   document.getElementById('serverUrlInput').value = getServerUrl();
@@ -64,6 +88,7 @@ function showSetup() {
 }
 
 // === Boot ===
+registerEim();
 var savedUrl = getServerUrl();
 if (savedUrl) {
   window.location.href = savedUrl.replace(/\/+$/, '') + '/index.php';

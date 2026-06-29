@@ -15,6 +15,7 @@
   "spinnerOnLaunch": false,
   "visible": true,
   "supportGIP": true,
+  "supportQuickStart": true,
   "handlesRelaunch": false,
   "checkUpdateOnLaunch": false
 }
